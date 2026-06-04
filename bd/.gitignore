@@ -1,0 +1,42 @@
+# === ENVIRENNEMENT VIRTUEL PYTHON ===
+# Contient les milliers de scripts téléchargés pour Django, inutile sur GitHub
+backend/venv/
+backend/.venv/
+env/
+.env
+*.pyc
+__pycache__/
+
+# === BASE DE DONNÉES LOCALES ===
+# Fichiers temporaires ou locaux (PostgreSQL est géré sur votre PC)
+*.sqlite3
+*.db
+database/donnees_locales.sql
+
+# === SÉCURITÉ ET SECRETS (TRÈS IMPORTANT) ===
+# Ne jamais pousser vos mots de passe de base de données ou clés secrètes
+backend/mentorlink_backend/local_settings.py
+.secrets
+.env.*
+
+# === ENVIRONNEMENT DE DÉVELOPPEMENT (IDE) ===
+# Vos préférences personnelles d'affichage dans votre éditeur
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# === SYSTÈME D'EXPLOITATION ===
+# Fichiers cachés générés par Windows ou Mac
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# === LOGS ET FICHIERS TEMPORAIRES ===
+*.log
+backend/static/
+backend/media/
