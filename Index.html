@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+    <div class="login-card">
+        
+        <div class="login-header">
+            <img src="logo_groupe_57_v3 (1).png" alt="Logo" class="project-logo">
+        </div>
+
+        <div class="login-welcome">
+            <h1>Bienvenue </h1>
+            <p>Connectez-vous pour continuer</p>
+        </div>
+
+        <form class="login-form">
+            
+            <div class="input-group">
+                <label>Email</label>
+                <div class="input-field">
+                    <i class="fa-regular fa-user icon"></i>
+                    <input type="email" placeholder="Entrez votre email" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Mot de passe</label>
+                <div class="input-field">
+                    <i class="fa-solid fa-lock icon"></i>
+                    <input type="password" placeholder="Entrez votre mot de passe" required>
+                    <i class="fa-regular fa-eye eye-icon"></i>
+                </div>
+            </div>
+
+            <div class="login-options">
+                <label class="remember-me">
+                    <input type="checkbox"> Se souvenir de moi
+                </label>
+                <a href="#" class="forgot-pass">Mot de passe oublié ?</a>
+            </div>
+
+            <button type="submit" class="btn-login">Se connecter</button>
+
+            <div class="separator">
+                <span>ou</span>
+            </div>
+
+            <button type="button" class="btn-google">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" class="google-icon">
+                Se connecter avec Google
+            </button>
+
+            <p class="signup-text">
+                Pas encore de compte ? <a href="#">S'inscrire</a>
+            </p>
+
+        </form>
+
+    </div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
