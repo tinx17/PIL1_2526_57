@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import UserProfile, Competence, Lacune, Offre, Demande, Conversation, Message
 
-# Enregistrement de tous vos modèles pour l'interface graphique
+# Enregistrement des modèles pour l'interface graphique
 admin.site.register(UserProfile)
 admin.site.register(Competence)
 admin.site.register(Lacune)

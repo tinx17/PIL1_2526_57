@@ -58,3 +58,35 @@ def api_inscription(request):
 
     return JsonResponse({"status": "error", "message": "Méthode non autorisée. Utilisez POST."}, status=405)
 
+def api_login(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email_saisi = data.get('email', '').strip().lower()
+            mot_de_passe_saisi = data.get('mot_de_passe', '')
+
+            # Vérification de l'existence de l'utilisateur
+            try:
+                utilisateur = UserProfile.objects.get(email=email_saisi)
+            except UserProfile.DoesNotExist:
+                return JsonResponse({
+                    "status": "error", 
+                    "message": "Aucun compte trouvé avec cette adresse e-mail."
+                }, status=404)
+
+            # Vérification du mot de passe
+            if not utilisateur.check_password(mot_de_passe_saisi):
+                return JsonResponse({
+                    "status": "error", 
+                    "message": "Mot de passe incorrect. Veuillez réessayer."
+                }, status=401)
+
+            # Authentification réussie
+            return JsonResponse({
+                "status": "success",
+                "message": f"Bienvenue {utilisateur.prenom} ! Vous êtes connecté à MentorLink.",
+                "user_id": utilisateur.id
+            }, status=200)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
