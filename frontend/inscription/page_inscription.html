@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <div class = inscription-card>
+        <div class="inscription-header">
+            <img src="assets/images/logo_groupe_57_v3 (1).png" alt="Logo" class="project-logo">
+        </div>
+
+        <div class="login-welcome">
+            <h1>INSCRIPTION</h1>
+            <p>Veuillez renseigner vos informations</p>
+        </div>
+    
+        <form action="" method="POST" class = login-form>
+            <div class="input-group">
+                <label>Nom</label>
+                <div class="input-field">
+                    <input type="text" placeholder="Entrez votre nom" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Prénom</label>
+                <div class="input-field">
+                    <input type="text" placeholder="Entrez votre prénom" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Numéro de Téléphone</label>
+                <div class="input-field">
+                    <input type="tel" placeholder="Ex: 01XXXXXXXX" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Email</label>
+                <div class="input-field">
+                    <input type="email" placeholder="Entrez votre email" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for = "filière">Filière</label>
+                <div class="input-field">
+                    <select name="filière" id="filière" required>
+                        <option value="" disabled selected>Votre Filière</option>
+                        <option value="ia">Intelligence Artificielle (IA)</option>
+                        <option value="gl">Génie Logiciel (GL)</option>
+                        <option value="si">Sécurité Informatique (SI)</option>
+                        <option value="seiot">Systèmes embarqués et Intelligence des Objets (SeIOT)</option>
+                        <option value="im">Informatique Mathématique (IM)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for = "Niveau">Niveau d'étude</label>
+                <div class="input-field">
+                    <select name="niveau" id="niveau" required>
+                        <option value="" disabled selected>Choisissez votre niveau d'étude</option>
+                        <option value="L1">L1</option>
+                        <option value="L2">L2</option>
+                        <option value="L3">L3</option>
+                        <option value="M1">M1</option>
+                        <option value="M2">M2</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="Competences">Compétences</label>
+                <div class="input-field">
+                    <select name="Competences[]" id="Competences" required multiple>
+                        <option value="" disabled>Choisissez vos lacunes / compétences</option>
+                        
+                        <!-- Bloc Mathématiques & Fondations -->
+                        <option value="analyse">Analyse</option>
+                        <option value="algèbre linéaire">Algèbre linéaire</option>
+                        <option value="mathématiques discrètes">Mathématiques discrètes</option>
+                        <option value="probabilités et statistiques">Probabilités et statistiques</option>
+                        <option value="théorie des graphes">Théorie des graphes</option>
+                        <option value="recherche opérationnelle">Recherche opérationnelle</option>
+                        
+                        <!-- Bloc Informatique Fondamentale & Code -->
+                        <option value="algorithmique">Algorithmique</option>
+                        <option value="structures de données">Structures de données</option>
+                        <option value="programmation python">Programmation Python</option>
+                        <option value="programmation java">Programmation Java</option>
+                        <option value="bases de données (sql)">Bases de données (SQL)</option>
+                        
+                        <!-- Bloc Systèmes, Réseaux & Sécurité -->
+                        <option value="architecture des ordinateurs">Architecture des ordinateurs</option>
+                        <option value="réseaux informatiques">Réseaux informatiques</option>
+                        <option value="systèmes d'exploitation (linux)">Systèmes d'exploitation (Linux)</option>
+                        <option value="cybersécurité">Cybersécurité</option>
+                        
+                        <!-- Bloc Spécifiques Niveau Master -->
+                        <option value="architecture cloud et devops">Architecture Cloud et DevOps</option>
+                        <option value="cryptographie avancée">Cryptographie avancée</option>
+                        <option value="big data et data mining">Big Data et Data Mining</option>
+                        <option value="systèmes embarqués et rtos">Systèmes embarqués et RTOS</option>
+                        
+                        <!-- Transversal -->
+                        <option value="anglais">Anglais</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="input-group">
+                <label for="Lacunes">Lacunes</label>
+                <div class="input-field">
+                    <select name="Lacunes[]" id="Lacunes" required multiple>
+                        <option value="" disabled>Choisissez vos lacunes</option>
+                        
+                            <!-- Bloc Mathématiques & Fondations -->
+                        <option value="analyse">Analyse</option>
+                        <option value="algèbre linéaire">Algèbre linéaire</option>
+                        <option value="mathématiques discrètes">Mathématiques discrètes</option>
+                        <option value="probabilités et statistiques">Probabilités et statistiques</option>
+                        <option value="théorie des graphes">Théorie des graphes</option>
+                        <option value="recherche opérationnelle">Recherche opérationnelle</option>
+                        
+                        <!-- Bloc Informatique Fondamentale & Code -->
+                        <option value="algorithmique">Algorithmique</option>
+                        <option value="structures de données">Structures de données</option>
+                        <option value="programmation python">Programmation Python</option>
+                        <option value="programmation java">Programmation Java</option>
+                        <option value="bases de données (sql)">Bases de données (SQL)</option>
+                        
+                        <!-- Bloc Systèmes, Réseaux & Sécurité -->
+                        <option value="architecture des ordinateurs">Architecture des ordinateurs</option>
+                        <option value="réseaux informatiques">Réseaux informatiques</option>
+                        <option value="systèmes d'exploitation (linux)">Systèmes d'exploitation (Linux)</option>
+                        <option value="cybersécurité">Cybersécurité</option>
+                    
+                            <!-- Bloc Spécifiques Niveau Master -->
+                        <option value="architecture cloud et devops">Architecture Cloud et DevOps</option>
+                        <option value="cryptographie avancée">Cryptographie avancée</option>
+                        <option value="big data et data mining">Big Data et Data Mining</option>
+                        <option value="systèmes embarqués et rtos">Systèmes embarqués et RTOS</option>
+                            
+                            <!-- Transversal -->
+                        <option value="anglais">Anglais</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Horaire</label>
+                <div class="input-field">
+                    <i class="fa-solid fa-lock icon"></i>
+                    <input type="password" placeholder="Entrez votre mot de passe" required>
+                    <i class="fa-regular fa-eye eye-icon"></i>
+                </div>
+            </div>
+
+
+            <div class="input-group">
+                <label>Mot de passe</label>
+                <div class="input-field">
+                    <i class="fa-solid fa-lock icon"></i>
+                    <input type="password" placeholder="Entrez votre mot de passe" required>
+                    <i class="fa-regular fa-eye eye-icon"></i>
+                </div>
+            </div>
+        </form>
+        <button type="submit" class="btn-google">Inscription</button>
+    </div>
+    
+    <script src="./script.js"></script>
+</body>
+</html>

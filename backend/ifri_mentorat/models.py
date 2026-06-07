@@ -1,8 +1,7 @@
 from django.db import models
 
-# =================================================================
 # ENUMÉRATION POUR LE FORMAT DES OFFRES ET DEMANDES
-# =================================================================
+
 class FormatType(models.TextChoices):
     PRESENTIEL = 'presentiel', 'Présentiel'
     EN_LIGNE = 'en ligne', 'En ligne'
@@ -30,9 +29,9 @@ class UserProfile(models.Model):
         return f"{self.nom.upper()} {self.prenom} ({self.filiere})"
 
 
-# =================================================================
+
 # TABLE 2 : COMPETENCES
-# =================================================================
+
 class Competence(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='competences')
     matiere = models.CharField(max_length=100)
@@ -42,9 +41,9 @@ class Competence(models.Model):
         return f"Compétence {self.matiere} de {self.user.nom}"
 
 
-# =================================================================
+
 # TABLE 3 : LACUNES
-# =================================================================
+
 class Lacune(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='lacunes')
     matiere = models.CharField(max_length=100)
@@ -54,9 +53,9 @@ class Lacune(models.Model):
         return f"Lacune {self.matiere} de {self.user.nom}"
 
 
-# =================================================================
+
 # TABLE 4 : OFFRES
-# =================================================================
+
 class Offre(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='offres')
     matiere = models.CharField(max_length=100)
@@ -73,9 +72,9 @@ class Offre(models.Model):
         return f"Offre en {self.matiere} par {self.user.nom}"
 
 
-# =================================================================
+
 # TABLE 5 : DEMANDES
-# =================================================================
+
 class Demande(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='demandes')
     matiere = models.CharField(max_length=100)
@@ -92,9 +91,9 @@ class Demande(models.Model):
         return f"Demande en {self.matiere} par {self.user.nom}"
 
 
-# =================================================================
+
 # TABLE 6 : CONVERSATIONS
-# =================================================================
+
 class Conversation(models.Model):
     # Les related_name permettent de différencier les deux clés étrangères pointant vers la même table
     user1 = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='conversations_initiees')
@@ -109,9 +108,9 @@ class Conversation(models.Model):
         return f"Discussion entre {self.user1.nom} et {self.user2.nom}"
 
 
-# =================================================================
+
 # TABLE 7 : MESSAGES
-# =================================================================
+
 class Message(models.Model):
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='messages_envoyes')

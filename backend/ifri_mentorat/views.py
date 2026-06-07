@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password
 from .models import UserProfile
 
+
+    
 @csrf_exempt  # Indispensable pour communiquer avec votre frontend indépendant
 def api_inscription(request):
     if request.method == "POST":
