@@ -1,1 +1,40 @@
+# === ENVIRONNEMENT VIRTUEL PYTHON ===
+backend/venv/
+backend/.venv/
+env/
+.env
+*.pyc
+__pycache__/
 
+# === BASE DE DONNÉES LOCALES ===
+
+*.sqlite3
+*.db
+database/donnees_locales.sql
+
+# === SÉCURITÉ ET SECRETS (TRÈS IMPORTANT) ===
+
+backend/mentorlink_backend/local_settings.py
+.secrets
+.env.*
+
+# === ENVIRONNEMENT DE DÉVELOPPEMENT (IDE) ===
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# === SYSTÈME D'EXPLOITATION ===
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# === LOGS ET FICHIERS TEMPORAIRES ===
+*.log
+backend/static/
+backend/media/
