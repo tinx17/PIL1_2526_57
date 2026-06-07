@@ -41,10 +41,9 @@ def api_inscription(request):
                 # Chiffrement irréversible du mot de passe avant la sauvegarde en base
                 mot_de_passe=make_password(data.get('mot_de_passe')), 
                 filiere=data.get('filiere', '').strip(),
-                niveau=data.get('niveau', '').strip(),
-                bio_courte=data.get('bio_courte', '').strip(),
-                centres_interet=data.get('centres_interet', '').strip(),
-                photo=data.get('photo', '') # Peut être vide au départ
+                competences = data.get('competences', ''),
+                lacunes = data.get('lacunes', ''),
+                niveau=data.get('niveau', '').strip(),     
             )
 
             # 4. Réponse au format JSON standard pour le Frontend indépendant

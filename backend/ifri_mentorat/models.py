@@ -21,8 +21,6 @@ class UserProfile(models.Model):
     photo = models.CharField(max_length=255, blank=True, null=True)
     filiere = models.CharField(max_length=100, blank=True, null=True)
     niveau = models.CharField(max_length=50, blank=True, null=True)
-    bio_courte = models.TextField(blank=True, null=True)
-    centres_interet = models.TextField(blank=True, null=True)
     date_inscription = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
