@@ -1,0 +1,130 @@
+/* --- Styles de Base --- */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #E9F6F8; /* Bleu très clair */
+    color: #0B2B45; /* Bleu très foncé pour le texte */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.inscription-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #3B91BC; /* Bleu intermédiaire */
+    margin-bottom: 20px;
+}
+
+h3 {
+    margin-bottom: 20px;
+    color: #0B2B45;
+    font-size: 1.1rem;
+}
+
+/* --- Formulaires et Alignement --- */
+.input-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.input-group input, 
+.input-group select, 
+.input-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #C3E8F3; /* Bleu clair pour les bordures */
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.input-group textarea {
+    height: 80px;
+    resize: none;
+}
+
+/* --- Bloc spécifique pour le mot de passe et l'œil --- */
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-container input {
+    padding-right: 40px;
+}
+
+#toggle-password {
+    position: absolute;
+    right: 12px;
+    cursor: pointer;
+    color: #3B91BC;
+}
+
+#toggle-password:hover {
+    color: #0B2B45;
+}
+
+/* --- Boutons --- */
+button {
+    background-color: #3B91BC;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0B2B45;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-prev {
+    background-color: #C3E8F3;
+    color: #0B2B45;
+}
+
+.btn-prev:hover {
+    background-color: #b0dcfa;
+}
+
+/* --- Gestion des étapes --- */
+.form-step {
+    display: none; /* Cache les étapes par défaut */
+}
+
+.form-step.active-step {
+    display: block; /* Affiche l'étape active */
+}

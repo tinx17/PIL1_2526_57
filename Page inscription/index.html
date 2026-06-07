@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - IFRI MentorLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="inscription-container">
+        
+        <div class="logo-section">
+            <img src="../logo_groupe_57_v3.png" alt="Logo" class="logo">
+            <h2>Créer un compte</h2>
+        </div>
+
+        <form id="form-inscription">
+            
+            <div class="form-step active-step" id="step-1">
+                
+                
+                <div class="input-group">
+                    <label>Nom</label>
+                    <input type="text" id="nom" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Prénom</label>
+                    <input type="text" id="prenom" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Adresse e-mail</label>
+                    <input type="email" id="email" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Téléphone</label>
+                    <input type="tel" id="telephone" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Mot de passe</label>
+                    <div class="password-container">
+                        <input type="password" id="password" required>
+                        <i class="fas fa-eye" id="toggle-password" onclick="basculerMotDePasse()"></i>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-next">Suivant</button>
+            </div>
+
+
+            <div class="form-step" id="step-2">
+           
+
+                <div class="input-group">
+                    <label>Filière</label>
+                    <select id="filiere">
+                        <option value="">Choisir...</option>
+                        <option value="IA">Intelligence Artificielle (IA)</option>
+                        <option value="GL">Génie Logiciel (GL)</option>
+                        <option value="IM">Internet et Multimédia (IM)</option>
+                        <option value="SI"> Sécurité Informatique(SI)</option>
+                        <option value="SE">Système Embarqué et Internet Des Objets (SEIot)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Niveau d'études</label>
+                    <select id="niveau">
+                        <option value="">Choisir...</option>
+                        <option value="L1">Licence 1</option>
+                        <option value="L2">Licence 2</option>
+                        <option value="L3">Licence 3</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Disponibilités horaires</label>
+                    <input type="text" id="dispo" placeholder="Ex: Soirée, Week-end...">
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn-prev">Précédent</button>
+                    <button type="button" class="btn-next">Suivant</button>
+                </div>
+            </div>
+
+
+            <div class="form-step" id="step-3">
+               
+
+                <div class="input-group">
+                    <label>Points forts (Matières maîtrisées)</label>
+                    <textarea id="points-forts" placeholder="Ex: Algorithmique, SQL..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Points faibles (Besoin d'aide)</label>
+                    <textarea id="points-faibles" placeholder="Ex: Web, Mathématiques..."></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn-prev">Précédent</button>
+                    <button type="submit" class="btn-submit">S'inscrire</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
