@@ -1,30 +1,47 @@
-
-// 1. On attend que toute la page HTML soit bien chargée par le navigateur
 document.addEventListener('DOMContentLoaded', () => {
+    const boutonInscription = document.querySelector('.btn-google');
 
-    // 2. On récupère le formulaire de connexion grâce à sa classe CSS
-    const formulaire = document.querySelector('.login-form');
+    boutonInscription.addEventListener('click', async () => {
 
-    // 3. On écoute quand l'utilisateur clique sur le bouton pour valider le formulaire
-    formulaire.addEventListener('submit', (evenement) => {
-        
-        // Empêche la page de se recharger automatiquement (comportement par défaut)
-        evenement.preventDefault();
+        // Récupération des valeurs du formulaire
+        const donnees = {
+            nom: document.querySelector('#nom').value,
+            prenom: document.querySelector('#prenom').value,
+            telephone: document.querySelector('#telephone').value,
+            email: document.querySelector('#email').value,
+            filiere: document.querySelector('#filière').value,
+            niveau: document.querySelector('#niveau').value,
+            mot_de_passe: document.querySelector('#mot_de_passe').value,
 
-        // 4. On récupère ce que l'utilisateur a tapé dans les cases
-        // (Le premier input c'est l'email, le deuxième c'est le mot de passe)
-        const nom_saisi = document.querySelector('#Nom').value
-        const prenom_saisi = document.querySelector('#Prenom').value
-        const 
-        const emailTape = document.querySelectorAll('#email').value;
-        const motDePasseTape = document.querySelectorAll('')[1].value;
+            // Pour les selects multiples
+            competences: Array.from(
+                document.querySelector('#Competences').selectedOptions
+            ).map(opt => opt.value),
 
-        // 5. Une petite vérification de test toute simple
-        if (emailTape === "admin@ifri.bj" && motDePasseTape === "1234") {
-            alert("Connexion réussie ! Bienvenue sur MentorLink.");
-        } else {
-            alert("Identifiants incorrects. Veuillez réessayer.");
+            lacunes: Array.from(
+                document.querySelector('#Lacunes').selectedOptions
+            ).map(opt => opt.value),
+        };
+
+        try {
+            const reponse = await fetch('http://127.0.0.1:8000/api/inscription/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(donnees)
+            });
+
+            const resultat = await reponse.json();
+
+            if (reponse.ok) {
+                alert(resultat.message); // Succès
+                // window.location.href = 'page_login.html'; // Redirection
+            } else {
+                alert('Erreur : ' + resultat.message);
+            }
+
+        } catch (erreur) {
+            alert('Impossible de joindre le serveur. Vérifiez que Django tourne.');
+            console.error(erreur);
         }
     });
-
 });
