@@ -3,11 +3,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import Q, Max
+
 
 from .models import (
     Offre, Demande,
     OffreCreneau, DemandeCreneau,
-    UserCreneau, PointFort, Lacune
+    UserCreneau, PointFort, Lacune,Conversation, Message, User
 )
 from .matching_algorithm import (
     MatchingBidirectionnel
@@ -848,3 +850,386 @@ def matching_offre(request, offre_id):
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 def interface_mentorat(request):
     return render(request, 'IFRI_MentorLink/index.html')
+
+# ================================================
+# CONVERSATIONS - CRÉER OU RÉCUPÉRER
+# ================================================
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def creer_ou_obtenir_conversation(request):
+    """
+    Crée une nouvelle conversation ou retourne une existante.
+    Si une conversation existe déjà entre les deux utilisateurs, elle est retournée.
+
+    Endpoint : POST /api/conversations/creer/
+
+    Body JSON :
+    {
+        "interlocuteur_id": 2
+    }
+    """
+    user = request.user
+    data = request.data
+    interlocuteur_id = data.get('interlocuteur_id')
+
+    if not interlocuteur_id:
+        return Response(
+            {'error': "Le champ 'interlocuteur_id' est obligatoire."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if int(interlocuteur_id) == user.id:
+        return Response(
+            {'error': "Vous ne pouvez pas démarrer une conversation avec vous-même."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        interlocuteur = User.objects.get(id=interlocuteur_id)
+    except User.DoesNotExist:
+        return Response(
+            {'error': "Utilisateur introuvable."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Chercher si une conversation existe déjà
+    conversation = Conversation.objects.filter(
+        Q(user1=user, user2=interlocuteur) |
+        Q(user1=interlocuteur, user2=user)
+    ).first()
+
+    if conversation:
+        return Response({
+            'success': True,
+            'message': 'Conversation déjà existante.',
+            'conversation_id': conversation.id,
+            'created': False
+        }, status=status.HTTP_200_OK)
+
+    # Créer une nouvelle conversation
+    conversation = Conversation.objects.create(
+        user1=user,
+        user2=interlocuteur
+    )
+
+    return Response({
+        'success': True,
+        'message': 'Conversation créée avec succès.',
+        'conversation_id': conversation.id,
+        'created': True
+    }, status=status.HTTP_201_CREATED)
+
+
+# ================================================
+# CONVERSATIONS - LISTER
+# ================================================
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def liste_conversations(request):
+    """
+    Retourne toutes les conversations de l'utilisateur connecté,
+    triées par date du dernier message.
+
+    Endpoint : GET /api/conversations/
+    """
+    user = request.user
+
+    conversations = Conversation.objects.filter(
+        Q(user1=user) | Q(user2=user)
+    ).annotate(
+        dernier_message_date=Max('messages__created_at')
+    ).order_by('-dernier_message_date')
+
+    liste = []
+    total_non_lus = 0
+
+    for conv in conversations:
+        # Déterminer l'interlocuteur
+        interlocuteur = conv.user2 if conv.user1.id == user.id else conv.user1
+
+        # Récupérer le dernier message
+        dernier_msg = conv.messages.order_by('-created_at').first()
+
+        # Compter les messages non lus (reçus par l'utilisateur)
+        non_lus = conv.messages.filter(lu=False).exclude(sender=user).count()
+        total_non_lus += non_lus
+
+        liste.append({
+            'conversation_id': conv.id,
+            'interlocuteur': {
+                'id': interlocuteur.id,
+                'nom': interlocuteur.nom,
+                'prenom': interlocuteur.prenom,
+                'photo': str(interlocuteur.photo) if interlocuteur.photo else None,
+                'filiere': interlocuteur.filiere,
+                'niveau': interlocuteur.niveau,
+            },
+            'dernier_message': dernier_msg.contenu if dernier_msg else None,
+            'dernier_message_date': dernier_msg.created_at if dernier_msg else None,
+            'messages_non_lus': non_lus,
+            'created_at': conv.created_at
+        })
+
+    return Response({
+        'success': True,
+        'total_conversations': len(liste),
+        'total_messages_non_lus': total_non_lus,
+        'conversations': liste
+    }, status=status.HTTP_200_OK)
+
+
+# ================================================
+# CONVERSATIONS - DÉTAIL
+# ================================================
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def detail_conversation(request, conversation_id):
+    """
+    Retourne les détails d'une conversation avec l'historique des messages.
+
+    Endpoint : GET /api/conversations/{conversation_id}/
+
+    Query params (optionnel) :
+    - page: numéro de page (par défaut: 1)
+    - per_page: messages par page (par défaut: 50)
+    """
+    user = request.user
+
+    try:
+        conversation = Conversation.objects.get(id=conversation_id)
+    except Conversation.DoesNotExist:
+        return Response(
+            {'error': 'Conversation introuvable.'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Vérifier que l'utilisateur participe à la conversation
+    if conversation.user1.id != user.id and conversation.user2.id != user.id:
+        return Response(
+            {'error': "Vous n'avez pas accès à cette conversation."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    # Déterminer l'interlocuteur
+    interlocuteur = conversation.user2 if conversation.user1.id == user.id else conversation.user1
+
+    # Marquer les messages de l'interlocuteur comme lus
+    Message.objects.filter(
+        conversation=conversation,
+        lu=False
+    ).exclude(sender=user).update(lu=True)
+
+    # Récupérer les messages
+    messages = conversation.messages.order_by('-created_at')
+
+    # Pagination simple (optionnel)
+    page = int(request.query_params.get('page', 1))
+    per_page = int(request.query_params.get('per_page', 50))
+    start = (page - 1) * per_page
+    messages_paginates = messages[start:start + per_page]
+
+    liste_messages = []
+    for msg in messages_paginates.reverse():  # Inverser pour l'ordre chronologique
+        liste_messages.append({
+            'message_id': msg.id,
+            'sender': {
+                'id': msg.sender.id,
+                'nom': msg.sender.nom,
+                'prenom': msg.sender.prenom,
+                'photo': str(msg.sender.photo) if msg.sender.photo else None,
+            },
+            'contenu': msg.contenu,
+            'lu': msg.lu,
+            'created_at': msg.created_at,
+            'est_expediteur': msg.sender.id == user.id
+        })
+
+    return Response({
+        'success': True,
+        'conversation_id': conversation.id,
+        'interlocuteur': {
+            'id': interlocuteur.id,
+            'nom': interlocuteur.nom,
+            'prenom': interlocuteur.prenom,
+            'photo': str(interlocuteur.photo) if interlocuteur.photo else None,
+            'filiere': interlocuteur.filiere,
+            'niveau': interlocuteur.niveau,
+            'bio_courte': interlocuteur.bio_courte,
+        },
+        'messages': liste_messages,
+        'total_messages': conversation.messages.count(),
+        'page': page,
+        'per_page': per_page
+    }, status=status.HTTP_200_OK)
+
+
+# ================================================
+# MESSAGES - ENVOYER
+# ================================================
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def envoyer_message(request, conversation_id):
+    """
+    Envoie un message dans une conversation.
+
+    Endpoint : POST /api/conversations/{conversation_id}/messages/envoyer/
+
+    Body JSON :
+    {
+        "contenu": "Bonjour, comment ça va ?"
+    }
+    """
+    user = request.user
+    data = request.data
+    contenu = data.get('contenu', '').strip()
+
+    if not contenu:
+        return Response(
+            {'error': "Le message ne peut pas être vide."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        conversation = Conversation.objects.get(id=conversation_id)
+    except Conversation.DoesNotExist:
+        return Response(
+            {'error': 'Conversation introuvable.'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Vérifier que l'utilisateur participe à la conversation
+    if conversation.user1.id != user.id and conversation.user2.id != user.id:
+        return Response(
+            {'error': "Vous n'êtes pas autorisé à envoyer un message dans cette conversation."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    # Créer le message
+    message = Message.objects.create(
+        conversation=conversation,
+        sender=user,
+        contenu=contenu
+    )
+
+    return Response({
+        'success': True,
+        'message': 'Message envoyé avec succès.',
+        'message_id': message.id,
+        'created_at': message.created_at
+    }, status=status.HTTP_201_CREATED)
+
+
+# ================================================
+# MESSAGES - MARQUER COMME LU
+# ================================================
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def marquer_message_comme_lu(request, message_id):
+    """
+    Marque un message comme lu.
+
+    Endpoint : PUT /api/messages/{message_id}/marquer-lu/
+    """
+    user = request.user
+
+    try:
+        message = Message.objects.get(id=message_id)
+    except Message.DoesNotExist:
+        return Response(
+            {'error': 'Message introuvable.'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Vérifier que l'utilisateur est le destinataire
+    if message.sender.id == user.id:
+        return Response(
+            {'error': "Vous ne pouvez pas marquer votre propre message comme lu."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    message.lu = True
+    message.save()
+
+    return Response({
+        'success': True,
+        'message': 'Message marqué comme lu.'
+    }, status=status.HTTP_200_OK)
+
+
+# ================================================
+# MESSAGES - SUPPRIMER
+# ================================================
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def supprimer_message(request, message_id):
+    """
+    Supprime un message (uniquement par l'expéditeur).
+
+    Endpoint : DELETE /api/messages/{message_id}/supprimer/
+    """
+    user = request.user
+
+    try:
+        message = Message.objects.get(id=message_id)
+    except Message.DoesNotExist:
+        return Response(
+            {'error': 'Message introuvable.'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Vérifier que l'utilisateur est l'expéditeur
+    if message.sender.id != user.id:
+        return Response(
+            {'error': "Vous ne pouvez supprimer que vos propres messages."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    message.delete()
+
+    return Response({
+        'success': True,
+        'message': 'Message supprimé avec succès.'
+    }, status=status.HTTP_204_NO_CONTENT)
+
+
+# ================================================
+# CONVERSATIONS - SUPPRIMER
+# ================================================
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def supprimer_conversation(request, conversation_id):
+    """
+    Supprime une conversation et tous ses messages.
+
+    Endpoint : DELETE /api/conversations/{conversation_id}/supprimer/
+    """
+    user = request.user
+
+    try:
+        conversation = Conversation.objects.get(id=conversation_id)
+    except Conversation.DoesNotExist:
+        return Response(
+            {'error': 'Conversation introuvable.'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Vérifier que l'utilisateur participe à la conversation
+    if conversation.user1.id != user.id and conversation.user2.id != user.id:
+        return Response(
+            {'error': "Vous n'avez pas accès à cette conversation."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    conversation.delete()  # CASCADE → supprime tous les messages liés
+
+    return Response({
+        'success': True,
+        'message': 'Conversation supprimée avec succès.'
+    }, status=status.HTTP_204_NO_CONTENT)
