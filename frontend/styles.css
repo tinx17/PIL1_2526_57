@@ -28,44 +28,86 @@ body {
 }
 
 /* Navigation */
-nav {
+.site-nav {
   background: var(--white);
   border-bottom: 2px solid var(--blue-light);
-  padding: 16px 0;
   position: sticky;
   top: 0;
+  z-index: 10;
   box-shadow: 0 2px 8px rgba(11, 43, 69, 0.08);
 }
 
-nav .container {
+.nav-inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 16px 0;
 }
 
-nav .brand {
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-weight: 700;
   color: var(--blue-dark);
   font-size: 18px;
+  text-decoration: none;
 }
 
-nav .nav-links {
+.nav-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.nav-toggle {
+  display: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px;
+  margin-left: 12px;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background: var(--blue-dark);
+  border-radius: 999px;
+  margin: 5px 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-links {
   display: flex;
   gap: 24px;
+  align-items: center;
 }
 
-nav a {
+.nav-link {
   text-decoration: none;
   color: var(--text-dark);
   font-weight: 500;
-  transition: color 0.3s, border-bottom 0.3s;
+  transition: color 0.3s, border-bottom 0.3s, background-color 0.3s;
   border-bottom: 2px solid transparent;
   padding-bottom: 4px;
 }
 
-nav a:hover {
+.nav-link:hover,
+.nav-link.active {
   color: var(--blue-medium);
   border-bottom-color: var(--blue-medium);
+}
+
+.nav-link.active {
+  font-weight: 700;
+}
+
+.nav-links.open {
+  transform: scaleY(1);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Main content */
@@ -198,7 +240,44 @@ input:focus, textarea:focus {
   .offers-container {
     grid-template-columns: 1fr;
   }
-  
+
+  .nav-inner {
+    position: relative;
+    flex-wrap: wrap;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    background: var(--white);
+    flex-direction: column;
+    gap: 0;
+    border-bottom: 1px solid var(--blue-light);
+    transform: scaleY(0);
+    transform-origin: top;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    z-index: 9;
+  }
+
+  .nav-links a {
+    padding: 14px 20px;
+    border-top: 1px solid var(--blue-light);
+  }
+
+  .nav-links.open {
+    transform: scaleY(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
   nav .nav-links {
     gap: 12px;
     font-size: 14px;
@@ -242,6 +321,10 @@ input:focus, textarea:focus {
   flex-wrap: wrap;
 }
 
+.btn {
+  text-decoration: none;
+}
+
 .btn-secondary {
   background: var(--white);
   color: var(--blue-medium);
@@ -277,17 +360,21 @@ input:focus, textarea:focus {
 }
 
 .step-number {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   background: var(--blue-medium);
   color: var(--white);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  font-weight: 700;
   margin: 0 auto 20px;
+}
+
+.step-number [data-lucide] {
+  width: 32px;
+  height: 32px;
+  stroke: var(--white);
 }
 
 .step h3 {
@@ -338,8 +425,21 @@ input:focus, textarea:focus {
 }
 
 .card-icon {
-  font-size: 48px;
-  margin-bottom: 20px;
+  width: 64px;
+  height: 64px;
+  background: var(--blue-xlight);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  transition: all 0.3s;
+}
+
+.card-icon [data-lucide] {
+  width: 32px;
+  height: 32px;
+  stroke: var(--blue-medium);
 }
 
 .card h3 {
@@ -380,4 +480,37 @@ input:focus, textarea:focus {
   .cards-grid {
     grid-template-columns: 1fr;
   }
+}
+
+[data-lucide] {
+  width: 28px;
+  height: 28px;
+  stroke: currentColor;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  transition: all 0.3s ease;
+}
+
+.card:hover .card-icon {
+  background: var(--blue-light);
+}
+
+.card:hover .card-icon [data-lucide] {
+  stroke: var(--blue-dark);
+}
+
+.nav-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
