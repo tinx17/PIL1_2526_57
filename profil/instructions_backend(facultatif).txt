@@ -1,0 +1,30 @@
+// =====================================================
+//  profil.js — MentorLink
+// =====================================================
+
+
+// =====================================================
+//  ⚠️  BACKEND — UNE SEULE CHOSE À FAIRE :
+//
+//  Créer une route GET qui retourne les infos de
+//  l'utilisateur connecté sous ce format JSON :
+//
+//  GET /api/utilisateurs/moi
+//  → {
+//       "id": 1,
+//       "nom": "AHOUANDJINOU",
+//       "prenom": "Koffi",
+//       "email": "koffi@ifri.uac.bj",
+//       "filiere": "Génie Logiciel",
+//       "niveau": "Licence 1",
+//       "bio_courte": "...",
+//       "centres_interet": "...",
+//       "points_forts": ["Algo", "Python"],
+//       "lacunes": ["Réseaux", "Java"],
+//       "creneaux": [
+//           { "jour": "lundi", "heure_debut": "18:00", "heure_fin": "20:00" }
+//       ]
+//    }
+//
+//  L'URL ci-dessous est à adapter selon votre serveur.
+// =====================================================
