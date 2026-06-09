@@ -1,39 +1,48 @@
 const API_URL = "http://localhost:8000";
 
-document.getElementById("profil").innerHTML = `
-    <div class="carte-profil" style="text-align:center; padding: 50px;">
-        <p style="color: #3b7bc8; font-size: 16px;">⏳ Chargement du profil...</p>
-    </div>
-`;
+const token = localStorage.getItem("token");
 
-fetch(`${API_URL}/api/utilisateurs/moi`, {
-    method: "GET",
-    headers: {
-        "Content-Type": "application/json"
-    }
-})
-.then(function(reponse) {
-    if (!reponse.ok) {
-        throw new Error("Erreur serveur : " + reponse.status);
-    }
-    return reponse.json();
-})
-.then(function(utilisateur) {
-    afficherProfil(utilisateur);
-})
-.catch(function(erreur) {
+if (!token) {
+    window.location.href = "connexion.html"; 
+} else {
     document.getElementById("profil").innerHTML = `
-        <div class="carte-profil" style="text-align:center; padding: 40px;">
-            <p style="color: #c0392b; font-size: 15px;">
-                ❌ Impossible de charger le profil.<br>
-                <small style="color:#999;">${erreur.message}</small>
-            </p>
-            <p style="margin-top:15px; font-size:13px; color:#888;">
-                Vérifiez que le serveur backend tourne sur <strong>${API_URL}</strong>
-            </p>
+        <div class="carte-profil" style="text-align:center; padding: 50px;">
+            <p style="color: #3b7bc8; font-size: 16px;">⏳ Chargement du profil...</p>
         </div>
     `;
-});
+
+    
+    fetch(`${API_URL}/profil/`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` 
+        }
+    })
+    
+    .then(function(reponse) {
+        if (!reponse.ok) {
+            throw new Error("Erreur serveur : " + reponse.status);
+        }
+        return reponse.json();
+    })
+    .then(function(utilisateur) {
+        afficherProfil(utilisateur);
+    })
+    .catch(function(erreur) {
+        document.getElementById("profil").innerHTML = `
+            <div class="carte-profil" style="text-align:center; padding: 40px;">
+                <p style="color: #c0392b; font-size: 15px;">
+                    ❌ Impossible de charger le profil.<br>
+                    <small style="color:#999;">${erreur.message}</small>
+                </p>
+                <p style="margin-top:15px; font-size:13px; color:#888;">
+                    Vérifiez que le serveur backend tourne sur <strong>${API_URL}</strong>
+                </p>
+            </div>
+        `;
+    });
+} 
 
 function afficherProfil(utilisateur) {
 
