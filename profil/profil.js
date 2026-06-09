@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "http://localhost:8000";
 
 document.getElementById("profil").innerHTML = `
     <div class="carte-profil" style="text-align:center; padding: 50px;">
