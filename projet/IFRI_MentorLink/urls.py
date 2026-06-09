@@ -36,16 +36,16 @@ urlpatterns = [
     # ================================================
     # CONVERSATIONS
     # ================================================
-    path('conversations/creer/', views.conversations.creer_ou_obtenir_conversation, name='creer_ou_obtenir_conversation'),
-    path('conversations/', views.conversations.liste_conversations, name='liste_conversations'),
-    path('conversations/<int:conversation_id>/', views.conversations.detail_conversation, name='detail_conversation'),
-    path('conversations/<int:conversation_id>/supprimer/', views.conversations.supprimer_conversation, name='supprimer_conversation'),
+    path('conversations/creer/', views.creer_ou_obtenir_conversation, name='creer_ou_obtenir_conversation'),
+    path('conversations/', views.liste_conversations, name='liste_conversations'),
+    path('conversations/<int:conversation_id>/', views.detail_conversation, name='detail_conversation'),
+    path('conversations/<int:conversation_id>/supprimer/', views.supprimer_conversation, name='supprimer_conversation'),
     
     # ================================================
     # MESSAGES
     # ================================================
-    path('conversations/<int:conversation_id>/messages/envoyer/', views.conversations.envoyer_message, name='envoyer_message'),
-    path('messages/<int:message_id>/marquer-lu/', views.conversations.marquer_message_comme_lu, name='marquer_message_comme_lu'),
-    path('messages/<int:message_id>/supprimer/', views.conversations.supprimer_message, name='supprimer_message'),
+    path('conversations/<int:conversation_id>/messages/envoyer/', views.envoyer_message, name='envoyer_message'),
+    path('messages/<int:message_id>/marquer-lu/', views.marquer_message_comme_lu, name='marquer_message_comme_lu'),
+    path('messages/<int:message_id>/supprimer/', views.supprimer_message, name='supprimer_message'),
 
 ]
