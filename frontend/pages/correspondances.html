@@ -1,51 +1,227 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Correspondances - IFRI_MentorLink</title>
-  <link rel="stylesheet" href="../styles.css">
-  <link rel="shortcut icon" href="../assets/img/icon.png" type="image/x-icon">
-  <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body>
-  <nav class="site-nav">
-    <div class="container nav-inner">
-      <a href="../index.html" class="brand">
-        <img src="../assets/img/icon.png" alt="IFRI_MentorLink logo" class="nav-logo">
-        IFRI_MentorLink
-      </a>
-      <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <div class="nav-links">
-        <a href="../index.html" class="nav-link">Accueil</a>
-        <a href="correspondances.html" class="nav-link active">Correspondances</a>
-        <a href="offres.html" class="nav-link">Offres & Demandes</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Correspondances - IFRI_MentorLink</title>
+    <link rel="stylesheet" href="../CSS/styles.css" />
+    <link
+      rel="shortcut icon"
+      href="../assets/img/icon.png"
+      type="image/x-icon"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <nav class="site-nav">
+      <div class="container nav-inner">
+        <a href="../index.html" class="brand">
+          <img
+            src="../assets/img/icon.png"
+            alt="IFRI_MentorLink logo"
+            class="nav-logo"
+          />
+          IFRI_MentorLink
+        </a>
+        <button
+          class="nav-toggle"
+          aria-label="Ouvrir le menu"
+          aria-expanded="false"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="nav-links">
+          <a href="../index.html" class="nav-link">Accueil</a>
+          <a href="correspondances.html" class="nav-link active"
+            >Correspondances</a
+          >
+          <a href="offres.html" class="nav-link">Offres & Demandes</a>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
 
-  <main class="container">
-    <h1>Correspondances</h1>
-    <p>Vos correspondances mentor-mentoré</p>
-    
-    <section class="matching-container">
-      <div class="filters">
-        <h2>Filtres</h2>
-        <input type="text" placeholder="Chercher une matière..." class="filter-input">
-        <button class="btn btn-primary">Chercher</button>
+    <main class="container">
+      <div class="page-header">
+        <h1>Correspondances</h1>
+        <p>Découvrez les mentors et mentorés compatibles avec votre profil</p>
       </div>
-      
-      <div class="matching-list">
-        <h2>Résultats</h2>
-        <p>Les correspondances apparaîtront ici</p>
-      </div>
-    </section>
-  </main>
 
-  <script src="../script.js"></script>
-</body>
+      <div class="correspondances-layout">
+        <!-- Filtres -->
+        <aside class="filtres">
+          <h2>Filtres</h2>
+          <div class="filtre-groupe">
+            <label for="filtre-matiere">Matière</label>
+            <input
+              type="text"
+              id="filtre-matiere"
+              placeholder="Ex: Python, SQL..."
+            />
+          </div>
+          <div class="filtre-groupe">
+            <label for="filtre-filiere">Filière</label>
+            <select id="filtre-filiere">
+              <option value="">Toutes les filières</option>
+              <option value="Génie Logiciel">Génie Logiciel</option>
+              <option value="Intelligence Artificielle">
+                Intelligence Artificielle
+              </option>
+              <option value="Systèmes et Réseaux">Systèmes et Réseaux</option>
+              <option value="Informatique et Multimédia">
+                Informatique et Multimédia
+              </option>
+              <option value="Systèmes Embarqués et IoT">
+                Systèmes Embarqués et IoT
+              </option>
+            </select>
+          </div>
+          <div class="filtre-groupe">
+            <label for="filtre-score">Score minimum</label>
+            <input type="range" id="filtre-score" min="0" max="100" value="0" />
+            <span id="valeur-score">0%</span>
+          </div>
+          <button
+            type="button"
+            class="btn btn-primary"
+            id="btn-chercher"
+            onclick="filtrerUtilisateurs()"
+          >
+            <i data-lucide="search"></i>
+            Chercher
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="btn-reinitialiser"
+            onclick="reinitialiserFiltres()"
+          >
+            Réinitialiser
+          </button>
+        </aside>
+
+        <!-- Liste des correspondances -->
+        <section class="liste-correspondances" id="liste-correspondances">
+          <!-- Les cartes seront générées ici par JavaScript -->
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-brand">
+          <img src="../assets/img/icon.png" alt="Logo" class="nav-logo" />
+          <span>IFRI_MentorLink</span>
+        </div>
+        <div class="footer-links">
+          <a href="../index.html">Accueil</a>
+          <a href="correspondances.html">Correspondances</a>
+          <a href="offres.html">Offres & Demandes</a>
+        </div>
+        <p class="footer-copy">© 2025 IFRI_MentorLink · IFRI/UAC</p>
+      </div>
+    </footer>
+
+    <script src="../JS/data.js"></script>
+    <script src="../JS/script.js"></script>
+    <script>
+      // Afficher le score du filtre
+      document
+        .getElementById("filtre-score")
+        .addEventListener("input", function () {
+          document.getElementById("valeur-score").textContent =
+            this.value + "%";
+        });
+
+      // Générer les cartes
+      function afficherCorrespondances(liste) {
+        const conteneur = document.getElementById("liste-correspondances");
+        if (liste.length === 0) {
+          conteneur.innerHTML = `
+          <div class="vide">
+            <i data-lucide="search-x"></i>
+            <p>Aucune correspondance trouvée</p>
+          </div>`;
+          lucide.createIcons();
+          return;
+        }
+        conteneur.innerHTML = liste
+          .map(
+            (u) => `
+        <div class="carte-correspondance">
+          <div class="carte-header">
+            <div class="avatar">
+              <i data-lucide="user-round"></i>
+            </div>
+            <div class="carte-info">
+              <h3>${u.nom}</h3>
+              <p class="filiere">${u.filiere} · ${u.niveau}</p>
+            </div>
+            <div class="score-badge">${u.score}%</div>
+          </div>
+          <div class="carte-body">
+            <div class="competences">
+              <span class="label"><i data-lucide="check-circle"></i> Compétences</span>
+              <div class="tags">
+                ${u.competences.map((c) => `<span class="tag tag-competence">${c}</span>`).join("")}
+              </div>
+            </div>
+            <div class="lacunes">
+              <span class="label"><i data-lucide="circle-help"></i> Lacunes</span>
+              <div class="tags">
+                ${u.lacunes.map((l) => `<span class="tag tag-lacune">${l}</span>`).join("")}
+              </div>
+            </div>
+            <div class="disponibilites">
+              <i data-lucide="calendar"></i>
+              <span>${u.disponibilites}</span>
+            </div>
+          </div>
+          <div class="carte-footer">
+            <button class="btn btn-primary btn-sm">
+              <i data-lucide="message-circle"></i>
+              Contacter
+            </button>
+          </div>
+        </div>
+      `,
+          )
+          .join("");
+        lucide.createIcons();
+      }
+
+      function filtrerUtilisateurs() {
+        const matiere = document
+          .getElementById("filtre-matiere")
+          .value.toLowerCase();
+        const filiere = document.getElementById("filtre-filiere").value;
+        const score = parseInt(document.getElementById("filtre-score").value);
+
+        const resultats = utilisateurs.filter((u) => {
+          const matchMatiere =
+            matiere === "" ||
+            u.competences.some((c) => c.toLowerCase().includes(matiere)) ||
+            u.lacunes.some((l) => l.toLowerCase().includes(matiere));
+          const matchFiliere = filiere === "" || u.filiere === filiere;
+          const matchScore = u.score >= score;
+          return matchMatiere && matchFiliere && matchScore;
+        });
+
+        afficherCorrespondances(resultats);
+      }
+
+      function reinitialiserFiltres() {
+        document.getElementById("filtre-matiere").value = "";
+        document.getElementById("filtre-filiere").value = "";
+        document.getElementById("filtre-score").value = 0;
+        document.getElementById("valeur-score").textContent = "0%";
+        afficherCorrespondances(utilisateurs);
+      }
+
+      // Afficher toutes les correspondances au chargement
+      afficherCorrespondances(utilisateurs);
+      lucide.createIcons();
+    </script>
+  </body>
 </html>

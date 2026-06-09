@@ -1,95 +1,137 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IFRI_MentorLink</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="shortcut icon" href="assets/img/icon.png" type="image/x-icon">
-  <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body>
-  <nav class="site-nav">
-    <div class="container nav-inner">
-      <a href="index.html" class="brand">
-        <img src="assets/img/icon.png" alt="IFRI_MentorLink logo" class="nav-logo">
-        IFRI_MentorLink
-      </a>
-      <button class="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <div class="nav-links">
-        <a href="index.html" class="nav-link active">Accueil</a>
-        <a href="pages/correspondances.html" class="nav-link">Correspondances</a>
-        <a href="pages/offres.html" class="nav-link">Offres & Demandes</a>
-      </div>
-    </div>
-  </nav>
-
-  <section class="hero">
-    <div class="container">
-      <h1>Trouvez votre mentor<br>ou devenez mentor</h1>
-      <p class="hero-subtitle">Plateforme de mentorat académique et professionnel pour les étudiants de l'IFRI</p>
-      <div class="hero-buttons">
-        <a href="pages/correspondances.html" class="btn btn-primary">Trouver un mentor</a>
-        <a href="pages/offres.html" class="btn btn-secondary">Proposer du mentorat</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="how-it-works">
-    <div class="container">
-      <h2>Comment ça marche</h2>
-      <div class="steps">
-        <div class="step">
-          <div class="step-number">
-            <i data-lucide="user-round"></i>
-          </div>
-          <h3>Créer un profil</h3>
-          <p>Inscrivez-vous et complétez votre profil avec vos compétences et vos lacunes.</p>
-        </div>
-        <div class="step">
-          <div class="step-number">
-            <i data-lucide="handshake"></i>
-          </div>
-          <h3>Trouver une correspondance</h3>
-          <p>Explorez les correspondances proposées ou publiez une offre de mentorat.</p>
-        </div>
-        <div class="step">
-          <div class="step-number">
-            <i data-lucide="message-circle"></i>
-          </div>
-          <h3>Communiquer</h3>
-          <p>Échangez avec votre mentor ou mentoré via la messagerie intégrée.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="nav-cards">
-    <div class="container">
-      <h2>Accès rapide</h2>
-      <div class="cards-grid">
-        <a href="pages/correspondances.html" class="card">
-          <div class="card-icon">
-            <i data-lucide="users-round"></i>
-          </div>
-          <h3>Correspondances</h3>
-          <p>Découvrez les mentors et mentorés compatibles avec votre profil</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IFRI_MentorLink</title>
+    <link rel="stylesheet" href="CSS/styles.css" />
+    <link rel="shortcut icon" href="assets/img/icon.png" type="image/x-icon" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <nav class="site-nav">
+      <div class="container nav-inner">
+        <a href="index.html" class="brand">
+          <img
+            src="assets/img/icon.png"
+            alt="IFRI_MentorLink logo"
+            class="nav-logo"
+          />
+          IFRI_MentorLink
         </a>
-        <a href="pages/offres.html" class="card">
-          <div class="card-icon">
-            <i data-lucide="clipboard-list"></i>
-          </div>
-          <h3>Offres & Demandes</h3>
-          <p>Publiez ou consultez les offres de mentorat disponibles</p>
-        </a>
+        <button
+          class="nav-toggle"
+          aria-label="Ouvrir le menu"
+          aria-expanded="false"
+        >
+          <span></span>
+          <span> </span>
+          <span></span>
+        </button>
+        <div class="nav-links">
+          <a href="index.html" class="nav-link active">Accueil</a>
+          <a href="pages/correspondances.html" class="nav-link"
+            >Correspondances</a
+          >
+          <a href="pages/offres.html" class="nav-link">Offres & Demandes</a>
+        </div>
       </div>
-    </div>
-  </section>
+    </nav>
 
-  <script src="script.js"></script>
-</body>
+    <section class="hero">
+      <div class="container">
+        <h1>Trouvez votre mentor<br />ou devenez mentor</h1>
+        <p class="hero-subtitle">
+          Plateforme de mentorat académique et professionnel pour les étudiants
+          de l'Institut de Formation et de Recherche en Informatique
+        </p>
+        <div class="hero-buttons">
+          <a href="pages/correspondances.html" class="btn btn-primary"
+            >Trouver un mentor</a
+          >
+          <a href="pages/offres.html" class="btn btn-secondary"
+            >Proposer du mentorat</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works">
+      <div class="container">
+        <h2>Comment ça marche</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">
+              <i data-lucide="user-round"></i>
+            </div>
+            <h3>Créer un profil</h3>
+            <p>
+              Inscrivez-vous et complétez votre profil avec vos compétences et
+              vos lacunes.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-number">
+              <i data-lucide="handshake"></i>
+            </div>
+            <h3>Trouver une correspondance</h3>
+            <p>
+              Explorez les correspondances proposées ou publiez une offre de
+              mentorat.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-number">
+              <i data-lucide="message-circle"></i>
+            </div>
+            <h3>Communiquer</h3>
+            <p>
+              Échangez avec votre mentor ou mentoré via la messagerie intégrée.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="nav-cards">
+      <div class="container">
+        <h2>Accès rapide</h2>
+        <div class="cards-grid">
+          <a href="pages/correspondances.html" class="card">
+            <div class="card-icon">
+              <i data-lucide="users-round"></i>
+            </div>
+            <h3>Correspondances</h3>
+            <p>
+              Découvrez les mentors et mentorés compatibles avec votre profil
+            </p>
+          </a>
+          <a href="pages/offres.html" class="card">
+            <div class="card-icon">
+              <i data-lucide="clipboard-list"></i>
+            </div>
+            <h3>Offres & Demandes</h3>
+            <p>Publiez ou consultez les offres de mentorat disponibles</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-brand">
+          <img src="assets/img/icon.png" alt="Logo" class="nav-logo" />
+          <span>IFRI_MentorLink</span>
+        </div>
+        <div class="footer-links">
+          <a href="index.html">Accueil</a>
+          <a href="pages/correspondances.html">Correspondances</a>
+          <a href="pages/offres.html">Offres & Demandes</a>
+        </div>
+        <p class="footer-copy">© 2025 IFRI_MentorLink · IFRI/UAC</p>
+      </div>
+    </footer>
+
+    <script src="JS/script.js"></script>
+  </body>
 </html>
