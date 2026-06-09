@@ -129,6 +129,26 @@ nav a:hover {
   pointer-events: auto;
 }
 
+.nav-auth {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.d-none {
+  display: none !important;
+}
+
+.nav-auth {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.d-none {
+  display: none !important;
+}
+
 /* Main content */
 main {
   padding: 40px 16px;
@@ -155,27 +175,34 @@ p {
 
 /* Buttons */
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 12px 24px;
-  border: none;
+  border: 2px solid transparent; /* TOUS les boutons ont une bordure de 2px */
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
   font-size: 14px;
+  text-decoration: none !important;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
 }
 
 .btn [data-lucide] {
   width: 16px;
   height: 16px;
   stroke: currentColor;
-  vertical-align: middle;
   margin-right: 8px;
 }
 
 .btn-secondary {
   background: transparent;
   color: var(--blue-dark);
-  border: 1px solid var(--blue-medium);
+  border-color: var(--blue-medium); /* Change uniquement la couleur, garde les 2px */
 }
 
 .btn-secondary:hover {
@@ -190,16 +217,12 @@ p {
 .btn-primary {
   background: var(--blue-medium);
   color: var(--white);
+  border: 2px solid var(--blue-medium); /* Ajouté pour correspondre exactement à la hauteur du bouton secondaire */
 }
 
 .btn-primary:hover {
   background: var(--blue-dark);
   box-shadow: 0 4px 12px rgba(59, 145, 188, 0.3);
-  transform: translateY(-2px);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
 }
 
 /* Forms */
@@ -460,23 +483,25 @@ textarea:focus {
   display: flex;
   gap: 16px;
   justify-content: center;
+  align-items: center; /* Aligne les boutons strictement sur la même ligne horizontale */
   flex-wrap: wrap;
 }
 
-.btn {
-  text-decoration: none;
+.hero-buttons .btn {
+  min-width: 220px;
+  flex: 0 0 auto; /* Empêche les boutons de s'étirer bizarrement sur grand écran */
+  text-align: center;
+  box-sizing: border-box;
 }
-
-.btn-secondary {
+.hero-buttons .btn-secondary {
   background: var(--white);
-  color: var(--blue-medium);
-  border: 2px solid var(--blue-medium);
+  color: var(--blue-dark);
+  border: 2px solid var(--blue-dark);
 }
 
-.btn-secondary:hover {
-  background: var(--blue-xlight);
-  border-color: var(--blue-dark);
-  color: var(--blue-dark);
+.hero-buttons .btn-secondary:hover {
+  background: var(--blue-dark);
+  color: var(--white);
 }
 
 /* How It Works */
@@ -979,7 +1004,7 @@ textarea:focus {
   }
 }
 
-nav a {
+.nav-links a {
   text-decoration: none !important;
   color: var(--blue-dark) !important;
   font-weight: 500;
@@ -988,7 +1013,7 @@ nav a {
   padding-bottom: 4px;
 }
 
-nav a:hover {
+.nav-links a:hover {
   color: var(--blue-medium) !important;
   border-bottom-color: var(--blue-medium);
 }

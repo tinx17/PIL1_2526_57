@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion — IFRI_MentorLink</title>
+    <link rel="stylesheet" href="../CSS/styles.css" />
+    <link rel="shortcut icon" href="../assets/img/icon.png" type="image/x-icon" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      .auth-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 16px;
+        background: linear-gradient(135deg, var(--blue-light) 0%, var(--blue-xlight) 100%);
+      }
+
+      .auth-card {
+        background: var(--white);
+        border: 1px solid var(--blue-light);
+        border-radius: 16px;
+        padding: 48px 40px;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: 0 8px 32px rgba(11, 43, 69, 0.1);
+      }
+
+      .auth-header {
+        text-align: center;
+        margin-bottom: 36px;
+      }
+
+      .auth-header .auth-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--blue-xlight);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+      }
+
+      .auth-header .auth-icon [data-lucide] {
+        width: 32px;
+        height: 32px;
+        stroke: var(--blue-medium);
+      }
+
+      .auth-header h1 {
+        font-size: 26px;
+        margin-bottom: 8px;
+      }
+
+      .auth-header p {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .auth-form .form-group {
+        margin-bottom: 20px;
+      }
+
+      .auth-form label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--blue-dark);
+        margin-bottom: 8px;
+      }
+
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .input-wrapper [data-lucide].input-icon {
+        position: absolute;
+        left: 14px;
+        width: 16px;
+        height: 16px;
+        stroke: var(--text-muted);
+        pointer-events: none;
+        flex-shrink: 0;
+      }
+
+      .input-wrapper input {
+        padding-left: 42px;
+        margin-bottom: 0;
+      }
+
+      .input-wrapper .toggle-mdp {
+        position: absolute;
+        right: 14px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      .input-wrapper .toggle-mdp [data-lucide] {
+        width: 16px;
+        height: 16px;
+        stroke: var(--text-muted);
+        transition: stroke 0.2s;
+      }
+
+      .input-wrapper .toggle-mdp:hover [data-lucide] {
+        stroke: var(--blue-medium);
+      }
+
+      .auth-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+        font-size: 13px;
+      }
+
+      .auth-options label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+
+      .auth-options input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+        accent-color: var(--blue-medium);
+      }
+
+      .auth-options a {
+        color: var(--blue-medium);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .auth-options a:hover {
+        text-decoration: underline;
+      }
+
+      .auth-form .btn {
+        width: 100%;
+        padding: 13px;
+        font-size: 15px;
+        border-radius: 6px;
+      }
+
+      .auth-separator {
+        text-align: center;
+        margin: 28px 0 0;
+        font-size: 14px;
+        color: var(--text-muted);
+      }
+
+      .auth-separator a {
+        color: var(--blue-medium);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .auth-separator a:hover {
+        text-decoration: underline;
+      }
+
+      .form-error {
+        min-height: 20px;
+        margin-bottom: 16px;
+        color: #dc2626;
+        font-size: 13px;
+        text-align: center;
+      }
+
+      @media (max-width: 480px) {
+        .auth-card {
+          padding: 36px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-page">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="auth-icon">
+            <i data-lucide="log-in"></i>
+          </div>
+          <h1>Bienvenue</h1>
+          <p>Connectez-vous pour accéder à votre espace</p>
+        </div>
+
+        <form class="auth-form" id="form-connexion" novalidate>
+          <div class="form-group">
+            <label for="email">Adresse e-mail</label>
+            <div class="input-wrapper">
+              <i data-lucide="mail" class="input-icon"></i>
+              <input
+                type="email"
+                id="email"
+                placeholder="votre@email.com"
+                autocomplete="email"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mot-de-passe">Mot de passe</label>
+            <div class="input-wrapper">
+              <i data-lucide="lock" class="input-icon"></i>
+              <input
+                type="password"
+                id="mot-de-passe"
+                placeholder="Votre mot de passe"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-mdp"
+                id="toggle-mdp"
+                aria-label="Afficher le mot de passe"
+              >
+                <i data-lucide="eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-options">
+            <label>
+              <input type="checkbox" id="souvenir" />
+              Se souvenir de moi
+            </label>
+            <a href="#">Mot de passe oublié ?</a>
+          </div>
+
+          <p class="form-error" id="erreur-connexion"></p>
+
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="log-in"></i>
+            Se connecter
+          </button>
+        </form>
+
+        <p class="auth-separator">
+          Pas encore de compte ?
+          <a href="inscription.html">S'inscrire</a>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        lucide.createIcons();
+
+        // Toggle visibilité mot de passe
+        const toggleBtn = document.getElementById("toggle-mdp");
+        const champMdp = document.getElementById("mot-de-passe");
+        if (toggleBtn && champMdp) {
+          toggleBtn.addEventListener("click", function () {
+            const visible = champMdp.type === "text";
+            champMdp.type = visible ? "password" : "text";
+            toggleBtn.setAttribute("aria-label", visible ? "Afficher le mot de passe" : "Masquer le mot de passe");
+            // Mettre à jour l'icône
+            toggleBtn.innerHTML = visible
+              ? '<i data-lucide="eye"></i>'
+              : '<i data-lucide="eye-off"></i>';
+            lucide.createIcons();
+          });
+        }
+
+        // Validation formulaire
+        const form = document.getElementById("form-connexion");
+        const erreur = document.getElementById("erreur-connexion");
+        if (form) {
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const email = document.getElementById("email").value.trim();
+            const mdp = document.getElementById("mot-de-passe").value;
+            if (!email || !mdp) {
+              erreur.textContent = "Veuillez remplir tous les champs.";
+              return;
+            }
+            erreur.textContent = "";
+            // TODO : appel API Django /api/auth/login/
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
