@@ -14,9 +14,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django import views
 from django.contrib import admin
-from django.urls import path
-
+from django.urls import path,include
+from IFRI_MentorLink import views
 urlpatterns = [
     path('admin/', admin.site.urls),
+     path('api/', include('IFRI_MentorLink.urls')),
+     path('', views.interface_mentorat, name='index'),
+
 ]

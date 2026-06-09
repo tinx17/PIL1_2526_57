@@ -8,7 +8,7 @@ from django.db.models import Q
 from .models import (
     User, Offre, Demande, Matching,
     PointFort, Lacune, Conversation, Message,
-    UserCreneau, OffreCreneau, DemandeCreneau   # noms corrects depuis models.py
+    OffreCreneau, DemandeCreneau
 )
 from datetime import time
 
@@ -223,6 +223,50 @@ class MatchingBidirectionnel:
         return score
 
     # ========================================
+    # MÉTHODES D'ENRICHISSEMENT DES RÉSULTATS
+    # ========================================
+
+    def get_matieres_communes(self, offre_user, demande_user):
+        """
+        Retourne la liste des matières en commun entre :
+        - les points_forts du mentor (offre_user)
+        - les lacunes du mentoré (demande_user)
+        """
+        points_forts = set(
+            PointFort.objects.filter(user=offre_user).values_list('matiere', flat=True)
+        )
+        lacunes = set(
+            Lacune.objects.filter(user=demande_user).values_list('matiere', flat=True)
+        )
+        return list(points_forts & lacunes)
+
+    def get_disponibilites_communes(self, offre, demande):
+        """
+        Retourne la liste des créneaux communs (jour + plage horaire qui se chevauche)
+        entre une offre et une demande.
+        """
+        offre_creneaux = OffreCreneau.objects.filter(offre_id=offre.id)
+        demande_creneaux = DemandeCreneau.objects.filter(demande_id=demande.id)
+
+        communes = []
+        for oc in offre_creneaux:
+            for dc in demande_creneaux:
+                if oc.jour == dc.jour:
+                    if self.have_time_overlap(
+                        oc.heure_debut, oc.heure_fin,
+                        dc.heure_debut, dc.heure_fin
+                    ):
+                        # Intersection exacte des deux plages
+                        debut_commun = max(oc.heure_debut, dc.heure_debut)
+                        fin_commune = min(oc.heure_fin, dc.heure_fin)
+                        communes.append({
+                            'jour': oc.jour,
+                            'heure_debut': str(debut_commun),
+                            'heure_fin': str(fin_commune),
+                        })
+        return communes
+
+    # ========================================
     # CAS 1 : DEMANDE CHERCHE OFFRES (mentors)
     # ========================================
 
@@ -348,175 +392,3 @@ class MatchingBidirectionnel:
         offres = Offre.objects.filter(user=user)
         for offre in offres:
             self.execute_matching_for_offre(offre)
-
-
-# ========================================
-# VUES API DJANGO
-# ========================================
-
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-
-@api_view(['POST'])
-def execute_matching_demande_view(request, demande_id):
-    """
-    Vue API : exécute le matching pour une DEMANDE.
-
-    Endpoint : POST /api/matching/demande/{demande_id}/
-
-    La demande cherche les OFFRES compatibles.
-    """
-
-    try:
-        demande = Demande.objects.get(id=demande_id)
-
-        if not DemandeCreneau.objects.filter(demande_id=demande.id).exists():
-            return Response({
-                'error': "Cette demande n'a pas de créneaux horaires définis"
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        algo = MatchingBidirectionnel()
-        results = algo.execute_matching_for_demande(demande, min_score=0)
-
-        formatted_results = []
-        for result in results:
-            offre = result['offre']
-            offre_user = result['offre_user']
-
-            creneaux_formatted = [
-                {
-                    'jour': oc.jour,
-                    'heure_debut': str(oc.heure_debut),
-                    'heure_fin': str(oc.heure_fin)
-                }
-                for oc in OffreCreneau.objects.filter(offre_id=offre.id)
-            ]
-
-            formatted_results.append({
-                'offre_id': offre.id,
-                'score': result['score'],
-                'mentor': {
-                    'id': offre_user.id,
-                    'nom': offre_user.nom,
-                    'prenom': offre_user.prenom,
-                    'filiere': offre_user.filiere,
-                    'niveau': offre_user.niveau,
-                },
-                'offre': {
-                    'matiere': offre.matiere,
-                    'format': offre.format,
-                    'description': offre.description_offre,
-                    'creneaux': creneaux_formatted
-                }
-            })
-
-        return Response({
-            'success': True,
-            'type': 'demande',
-            'demande_id': demande_id,
-            'total_results': len(formatted_results),
-            'results': formatted_results
-        }, status=status.HTTP_200_OK)
-
-    except Demande.DoesNotExist:
-        return Response({'error': 'Demande non trouvée'}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(['POST'])
-def execute_matching_offre_view(request, offre_id):
-    """
-    Vue API : exécute le matching pour une OFFRE.
-
-    Endpoint : POST /api/matching/offre/{offre_id}/
-
-    L'offre cherche les DEMANDES compatibles.
-    """
-
-    try:
-        offre = Offre.objects.get(id=offre_id)
-
-        if not OffreCreneau.objects.filter(offre_id=offre.id).exists():
-            return Response({
-                'error': "Cette offre n'a pas de créneaux horaires définis"
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        algo = MatchingBidirectionnel()
-        results = algo.execute_matching_for_offre(offre, min_score=0)
-
-        formatted_results = []
-        for result in results:
-            demande = result['demande']
-            demande_user = result['demande_user']
-
-            creneaux_formatted = [
-                {
-                    'jour': dc.jour,
-                    'heure_debut': str(dc.heure_debut),
-                    'heure_fin': str(dc.heure_fin)
-                }
-                for dc in DemandeCreneau.objects.filter(demande_id=demande.id)
-            ]
-
-            formatted_results.append({
-                'demande_id': demande.id,
-                'score': result['score'],
-                'mentoré': {
-                    'id': demande_user.id,
-                    'nom': demande_user.nom,
-                    'prenom': demande_user.prenom,
-                    'filiere': demande_user.filiere,
-                    'niveau': demande_user.niveau,
-                },
-                'demande': {
-                    'matiere': demande.matiere,
-                    'format': demande.format,
-                    'description': demande.description_demande,
-                    'creneaux': creneaux_formatted
-                }
-            })
-
-        return Response({
-            'success': True,
-            'type': 'offre',
-            'offre_id': offre_id,
-            'total_results': len(formatted_results),
-            'results': formatted_results
-        }, status=status.HTTP_200_OK)
-
-    except Offre.DoesNotExist:
-        return Response({'error': 'Offre non trouvée'}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-# ========================================
-# EXEMPLE D'UTILISATION
-# ========================================
-
-"""
-# Dans Django shell :
-
-from app.matching_bidirectionnel import MatchingBidirectionnel
-from app.models import Demande, Offre
-
-algo = MatchingBidirectionnel()
-
-# CAS 1 : Demande cherche Offres
-demande = Demande.objects.get(id=1)
-results_demande = algo.execute_matching_for_demande(demande)
-for r in results_demande:
-    print(f"Score: {r['score']}/100 - Mentor: {r['offre_user'].prenom}")
-
-# CAS 2 : Offre cherche Demandes
-offre = Offre.objects.get(id=1)
-results_offre = algo.execute_matching_for_offre(offre)
-for r in results_offre:
-    print(f"Score: {r['score']}/100 - Mentoré: {r['demande_user'].prenom}")
-
-# Recalculer si user change
-user = User.objects.get(id=5)
-algo.recalculate_matchings_for_user(user)
-"""
