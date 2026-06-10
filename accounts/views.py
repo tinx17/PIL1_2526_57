@@ -219,9 +219,9 @@ def api_register_view(request):
         password = data.get('motDePasse', '')
         filiere = data.get('filiere', '').strip()
         niveau = data.get('niveau', '').strip()
-        disponibilites_str = data.get('disponibilites', '').strip()
-        points_forts = data.get('pointsForts', '').strip()
-        points_faibles = data.get('pointsFaibles', '').strip()
+        points_forts = data.get('pointsForts', [])
+        points_faibles = data.get('pointsFaibles', [])
+        disponibilites = data.get('disponibilites', {})
     except json.JSONDecodeError:
         return JsonResponse({'ok': False, 'message': 'Données JSON invalides.'}, status=400)
         
@@ -234,16 +234,20 @@ def api_register_view(request):
     if UserProfile.objects.filter(telephone=telephone).exists():
         return JsonResponse({'ok': False, 'message': 'Ce numéro de téléphone est déjà utilisé.'}, status=400)
 
+    # Disponibilités : accepter un dict JSON structuré {jour: [créneau, ...]}
     dispos = {}
-    if disponibilites_str:
-        parts = disponibilites_str.lower().split()
+    if isinstance(disponibilites, dict):
+        dispos = disponibilites
+    elif isinstance(disponibilites, str) and disponibilites.strip():
+        # Fallback: ancien format texte libre
+        parts = disponibilites.lower().split()
         time_slot = parts[-1] if len(parts) > 1 else "Toute la journée"
         days_part = " ".join(parts[:-1]) if len(parts) > 1 else parts[0]
         for d in ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']:
             if d in days_part:
                 dispos[d] = [time_slot]
         if not dispos:
-            dispos['lundi'] = [disponibilites_str]
+            dispos['lundi'] = [disponibilites]
             
     # Créer l'utilisateur
     user = UserProfile.objects.create_user(
@@ -258,19 +262,27 @@ def api_register_view(request):
         disponibilites=dispos
     )
     
-    # Gérer les compétences (points forts)
-    if points_forts:
+    # Gérer les compétences (points forts) — accepter tableau ou chaîne
+    if isinstance(points_forts, list):
+        matieres_forts = [m.strip() for m in points_forts if m.strip()]
+    elif isinstance(points_forts, str):
         matieres_forts = [m.strip() for m in points_forts.split(',') if m.strip()]
-        for m_nom in matieres_forts:
-            mat, _ = Matiere.objects.get_or_create(nom=m_nom)
-            user.competences.add(mat)
+    else:
+        matieres_forts = []
+    for m_nom in matieres_forts:
+        mat, _ = Matiere.objects.get_or_create(nom=m_nom)
+        user.competences.add(mat)
             
-    # Gérer les lacunes (points faibles)
-    if points_faibles:
+    # Gérer les lacunes (points faibles) — accepter tableau ou chaîne
+    if isinstance(points_faibles, list):
+        matieres_faibles = [m.strip() for m in points_faibles if m.strip()]
+    elif isinstance(points_faibles, str):
         matieres_faibles = [m.strip() for m in points_faibles.split(',') if m.strip()]
-        for m_nom in matieres_faibles:
-            mat, _ = Matiere.objects.get_or_create(nom=m_nom)
-            user.lacunes.add(mat)
+    else:
+        matieres_faibles = []
+    for m_nom in matieres_faibles:
+        mat, _ = Matiere.objects.get_or_create(nom=m_nom)
+        user.lacunes.add(mat)
             
     user.save()
     login(request, user, backend='accounts.backends.EmailOrPhoneBackend')
@@ -332,9 +344,9 @@ def api_update_profile_view(request):
         filiere = data.get('filiere', '').strip()
         niveau = data.get('niveau', '').strip()
         bio = data.get('bio', '').strip()
-        competences_str = data.get('competences', '').strip()
-        lacunes_str = data.get('lacunes', '').strip()
-        disponibilites_str = data.get('disponibilites', '').strip()
+        competences_data = data.get('competences', [])
+        lacunes_data = data.get('lacunes', [])
+        disponibilites_data = data.get('disponibilites', {})
     except json.JSONDecodeError:
         return JsonResponse({'ok': False, 'message': 'Données JSON invalides.'}, status=400)
         
@@ -353,34 +365,52 @@ def api_update_profile_view(request):
     user.niveau = niveau
     user.bio = bio
     
-    # Parser les disponibilités si disponibilites_str est fourni
-    if disponibilites_str:
+    # Disponibilités: accepter un dict JSON structuré {jour: [créneau, ...]}
+    if isinstance(disponibilites_data, dict):
+        user.disponibilites = disponibilites_data
+    elif isinstance(disponibilites_data, str) and disponibilites_data.strip():
+        # Fallback ancien format
         dispos = {}
-        parts = disponibilites_str.lower().split()
+        parts = disponibilites_data.lower().split()
         time_slot = parts[-1] if len(parts) > 1 else "Toute la journée"
         days_part = " ".join(parts[:-1]) if len(parts) > 1 else parts[0]
         for d in ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']:
             if d in days_part:
                 dispos[d] = [time_slot]
         if not dispos:
-            dispos['lundi'] = [disponibilites_str]
+            dispos['lundi'] = [disponibilites_data]
         user.disponibilites = dispos
         
-    # Mettre à jour les compétences (points forts)
+    # Mettre à jour les compétences (points forts) — accepter tableau ou chaîne
     user.competences.clear()
-    if competences_str:
-        matieres_forts = [m.strip() for m in competences_str.split(',') if m.strip()]
-        for m_nom in matieres_forts:
-            mat, _ = Matiere.objects.get_or_create(nom=m_nom)
-            user.competences.add(mat)
+    if isinstance(competences_data, list):
+        matieres_forts = [m.strip() for m in competences_data if m.strip()]
+    elif isinstance(competences_data, str):
+        matieres_forts = [m.strip() for m in competences_data.split(',') if m.strip()]
+    else:
+        matieres_forts = []
+    for m_nom in matieres_forts:
+        mat, _ = Matiere.objects.get_or_create(nom=m_nom)
+        user.competences.add(mat)
             
-    # Mettre à jour les lacunes (points faibles)
+    # Mettre à jour les lacunes (points faibles) — accepter tableau ou chaîne
     user.lacunes.clear()
-    if lacunes_str:
-        matieres_faibles = [m.strip() for m in lacunes_str.split(',') if m.strip()]
-        for m_nom in matieres_faibles:
-            mat, _ = Matiere.objects.get_or_create(nom=m_nom)
-            user.lacunes.add(mat)
+    if isinstance(lacunes_data, list):
+        matieres_faibles = [m.strip() for m in lacunes_data if m.strip()]
+    elif isinstance(lacunes_data, str):
+        matieres_faibles = [m.strip() for m in lacunes_data.split(',') if m.strip()]
+    else:
+        matieres_faibles = []
+    for m_nom in matieres_faibles:
+        mat, _ = Matiere.objects.get_or_create(nom=m_nom)
+        user.lacunes.add(mat)
             
     user.save()
     return JsonResponse({'ok': True, 'message': 'Profil mis à jour avec succès.'})
+
+
+def api_matieres_view(request):
+    """Retourne la liste de toutes les matières prédéfinies."""
+    matieres = list(Matiere.objects.values_list('nom', flat=True).order_by('nom'))
+    return JsonResponse({'ok': True, 'matieres': matieres})
+

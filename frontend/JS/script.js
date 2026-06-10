@@ -59,25 +59,51 @@ function initNavbarAuth() {
   const authUser = document.getElementById("auth-user");
   const userName = document.querySelector(".nav-user-name");
   const logoutBtn = document.getElementById("btn-deconnexion");
+  const navLinks = document.querySelector(".nav-links");
 
   if (!authButtons && !authUser) {
     return;
   }
 
   const session = getSession();
+  const inPages = window.location.pathname.includes("/pages/");
+  const pathName = window.location.pathname.split("/").pop() || "index.html";
 
   if (session && session.connecte) {
     authButtons?.classList.add("d-none");
     authUser?.classList.remove("d-none");
-    
-    // Injecter l'onglet "Messages" s'il n'existe pas encore
-    const navLinks = document.querySelector(".nav-links");
-    if (navLinks && !document.getElementById("nav-link-messagerie")) {
-      const isMessageriePage = window.location.pathname.includes("messagerie.html");
-      const messagerieUrl = getAuthRedirectPath("messagerie");
-      const linkHtml = `<a href="${messagerieUrl}" class="nav-link ${isMessageriePage ? 'active' : ''}" id="nav-link-messagerie">Messages</a>`;
-      navLinks.insertAdjacentHTML("beforeend", linkHtml);
-      
+
+    // Reconstruire les liens de nav pour utilisateur connecté
+    if (navLinks) {
+      const accueilHref = inPages ? "../index.html" : "index.html";
+      const correspHref = inPages ? "correspondances.html" : "pages/correspondances.html";
+      const offresHref = inPages ? "offres.html" : "pages/offres.html";
+      const messagerieHref = getAuthRedirectPath("messagerie");
+
+      const isAccueil = pathName === "index.html" || pathName === "";
+      const isCorresp = pathName === "correspondances.html";
+      const isOffres = pathName === "offres.html";
+      const isMessages = pathName === "messagerie.html";
+
+      navLinks.innerHTML = `
+        <a href="${accueilHref}" class="nav-link ${isAccueil ? 'active' : ''}" data-tooltip="Accueil">
+          <i data-lucide="home" class="nav-icon"></i>
+          <span class="nav-text">Accueil</span>
+        </a>
+        <a href="${correspHref}" class="nav-link ${isCorresp ? 'active' : ''}" data-tooltip="Correspondances">
+          <i data-lucide="handshake" class="nav-icon"></i>
+          <span class="nav-text">Correspondances</span>
+        </a>
+        <a href="${offresHref}" class="nav-link ${isOffres ? 'active' : ''}" data-tooltip="Offres & Demandes">
+          <i data-lucide="clipboard-list" class="nav-icon"></i>
+          <span class="nav-text">Offres & Demandes</span>
+        </a>
+        <a href="${messagerieHref}" class="nav-link ${isMessages ? 'active' : ''}" id="nav-link-messagerie" data-tooltip="Messages">
+          <i data-lucide="message-circle" class="nav-icon"></i>
+          <span class="nav-text">Messages</span>
+        </a>
+      `;
+
       // Lancer la logique de notification de fond
       fetchInitialNotificationsCount();
       connectNotifications();
@@ -96,16 +122,22 @@ function initNavbarAuth() {
       });
       userName.addEventListener("mouseover", function () {
         userName.style.color = "var(--blue-dark)";
-        userName.style.textDecoration = "underline";
       });
       userName.addEventListener("mouseout", function () {
         userName.style.color = "var(--blue-medium)";
-        userName.style.textDecoration = "none";
       });
     }
+
+    // Initialiser le dashboard sur la page d'accueil
+    initDashboard(session);
   } else {
     authButtons?.classList.remove("d-none");
     authUser?.classList.add("d-none");
+
+    // Utilisateur non connecté: masquer les nav-links, garder seulement Connexion/Inscription
+    if (navLinks) {
+      navLinks.innerHTML = "";
+    }
   }
 
   if (logoutBtn) {
@@ -163,26 +195,14 @@ async function inscrireUtilisateur(donnees) {
 
 document.addEventListener("DOMContentLoaded", function () {
   const navToggle = document.querySelector(".nav-toggle");
-  const navLinks = document.querySelector(".nav-links");
-  const pathName = window.location.pathname.split("/").pop();
 
-  document.querySelectorAll(".nav-link").forEach((link) => {
-    const href = link.getAttribute("href").split("/").pop();
-    let isActive = href === pathName;
-    if (!isActive && pathName === "" && href === "index.html") {
-      isActive = true;
-    }
-    if (isActive) {
-      link.classList.add("active");
-    }
-  });
-
-  if (navToggle && navLinks) {
+  if (navToggle) {
     navToggle.addEventListener("click", function () {
-      const navActions = navLinks.closest(".nav-actions");
-      const target = navActions || navLinks;
-      const isOpen = target.classList.toggle("open");
-      navToggle.setAttribute("aria-expanded", String(isOpen));
+      const navActions = document.querySelector(".nav-actions");
+      if (navActions) {
+        const isOpen = navActions.classList.toggle("open");
+        navToggle.setAttribute("aria-expanded", String(isOpen));
+      }
     });
   }
 
@@ -617,4 +637,72 @@ function contacterUtilisateur(userId) {
       console.error("Error starting conversation:", err);
       alert("Erreur de connexion : " + err.message);
     });
+}
+
+function initDashboard(session) {
+  // Dashboard uniquement sur la page d'accueil
+  const pathName = window.location.pathname.split("/").pop() || "index.html";
+  if (pathName !== "index.html" && pathName !== "") return;
+
+  const dashboardSection = document.getElementById("dashboard-section");
+  const heroSection = document.querySelector(".hero");
+  const howItWorksSection = document.querySelector(".how-it-works");
+  const navCardsSection = document.querySelector(".nav-cards");
+
+  if (!dashboardSection) return;
+
+  if (session && session.connecte) {
+    // Masquer les sections publiques
+    if (heroSection) heroSection.style.display = "none";
+    if (howItWorksSection) howItWorksSection.style.display = "none";
+    if (navCardsSection) navCardsSection.style.display = "none";
+
+    // Afficher le dashboard
+    dashboardSection.classList.add("active");
+
+    // Personnaliser l'en-tête
+    const dashName = document.getElementById("dashboard-user-name");
+    if (dashName) {
+      dashName.textContent = session.prenom || session.email || "Utilisateur";
+    }
+
+    // Récupérer les statistiques depuis l'API
+    fetchDashboardStats();
+  }
+}
+
+async function fetchDashboardStats() {
+  // Récupérer le nombre de messages non lus
+  try {
+    const convRes = await fetch(`${API_BASE}/messaging/api/conversations/`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+    const convData = await convRes.json();
+    if (convData.ok && convData.conversations) {
+      const totalUnread = convData.conversations.reduce((sum, c) => sum + c.non_lus, 0);
+      const totalConversations = convData.conversations.length;
+      const unreadEl = document.getElementById("stat-unread");
+      const convEl = document.getElementById("stat-conversations");
+      if (unreadEl) unreadEl.textContent = totalUnread;
+      if (convEl) convEl.textContent = totalConversations;
+    }
+  } catch (e) {
+    console.error("Dashboard stats fetch failed:", e);
+  }
+
+  // Récupérer le nombre d'offres
+  try {
+    const offresRes = await fetch(`${API_BASE}/matching/api/offres/`, {
+      credentials: "include",
+    });
+    const offresData = await offresRes.json();
+    if (offresData.ok && offresData.offres) {
+      const offresEl = document.getElementById("stat-offres");
+      if (offresEl) offresEl.textContent = offresData.offres.length;
+    }
+  } catch (e) {
+    console.error("Dashboard offres fetch failed:", e);
+  }
 }

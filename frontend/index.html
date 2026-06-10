@@ -42,6 +42,79 @@
     </div>
   </nav>
 
+  <!-- Dashboard (visible seulement pour les utilisateurs connectés) -->
+  <section id="dashboard-section">
+    <div class="container">
+      <div class="dashboard-header">
+        <h1>Bienvenue, <span id="dashboard-user-name">Utilisateur</span> 👋</h1>
+        <p>Voici un aperçu de votre activité sur IFRI_MentorLink</p>
+      </div>
+
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i data-lucide="message-circle"></i>
+          </div>
+          <div class="stat-value" id="stat-unread">0</div>
+          <div class="stat-label">Messages non lus</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i data-lucide="users-round"></i>
+          </div>
+          <div class="stat-value" id="stat-conversations">0</div>
+          <div class="stat-label">Discussions actives</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i data-lucide="clipboard-list"></i>
+          </div>
+          <div class="stat-value" id="stat-offres">0</div>
+          <div class="stat-label">Offres disponibles</div>
+        </div>
+      </div>
+
+      <div class="dashboard-quick-links">
+        <a href="pages/correspondances.html" class="quick-link-card">
+          <div class="ql-icon">
+            <i data-lucide="handshake"></i>
+          </div>
+          <div class="ql-text">
+            <h3>Trouver un mentor</h3>
+            <p>Explorez les correspondances compatibles avec votre profil</p>
+          </div>
+        </a>
+        <a href="pages/offres.html" class="quick-link-card">
+          <div class="ql-icon">
+            <i data-lucide="file-plus"></i>
+          </div>
+          <div class="ql-text">
+            <h3>Publier une offre</h3>
+            <p>Proposez votre aide ou cherchez un mentorat dans une matière</p>
+          </div>
+        </a>
+        <a href="pages/messagerie.html" class="quick-link-card">
+          <div class="ql-icon">
+            <i data-lucide="message-square"></i>
+          </div>
+          <div class="ql-text">
+            <h3>Messagerie</h3>
+            <p>Consultez vos conversations et échangez avec vos contacts</p>
+          </div>
+        </a>
+        <a href="pages/profil.html" class="quick-link-card">
+          <div class="ql-icon">
+            <i data-lucide="user-round"></i>
+          </div>
+          <div class="ql-text">
+            <h3>Mon profil</h3>
+            <p>Complétez votre profil pour de meilleures correspondances</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <section class="hero">
     <div class="container">
       <h1>Trouvez votre mentor<br />ou devenez mentor</h1>
