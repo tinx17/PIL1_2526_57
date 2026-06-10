@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import InscriptionForm, ConnexionForm, EditionProfilForm, ReinitialisationMotDePasseForm
+from .models import Matiere
 
 UserProfile = get_user_model()
 
