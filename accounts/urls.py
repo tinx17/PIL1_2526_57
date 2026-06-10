@@ -21,4 +21,10 @@ urlpatterns = [
 
     # Réinitialisation du mot de passe
     path('reset-password/', views.reinitialiser_mdp_view, name='reset_password'),
+
+    # API endpoints
+    path('api/login/', views.api_login_view, name='api_login'),
+    path('api/register/', views.api_register_view, name='api_register'),
+    path('api/logout/', views.api_logout_view, name='api_logout'),
+    path('api/user/', views.api_user_view, name='api_user'),
 ]

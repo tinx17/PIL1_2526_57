@@ -247,3 +247,154 @@ def fermer_offre_view(request, offre_id):
 
 # Import nécessaire pour contacter_view
 from django.contrib.auth import get_user_model
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+def serialize_user(user):
+    return {
+        'id': user.pk,
+        'nom': user.nom,
+        'prenom': user.prenom,
+        'email': user.email,
+        'telephone': user.telephone,
+        'filiere': user.get_filiere_display() or user.filiere,
+        'niveau': user.get_niveau_display() or user.niveau,
+        'competences': [m.nom for m in user.competences.all()],
+        'lacunes': [m.nom for m in user.lacunes.all()],
+        'disponibilites': user.disponibilites,
+    }
+
+def serialize_suggestion(sug):
+    return {
+        'utilisateur': serialize_user(sug['utilisateur']),
+        'score': sug['score'],
+        'score_percentage': sug['score_percentage'],
+        'score_competences': sug['score_competences'],
+        'score_disponibilites': sug['score_disponibilites'],
+        'score_filiere': sug['score_filiere'],
+        'disponibilites_communes': sug['disponibilites_communes'],
+        'matieres_communes': [m.nom for m in sug['matieres_communes']],
+    }
+
+def api_suggestions_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'message': 'Non authentifié.'}, status=401)
+        
+    sugs = get_suggestions(request.user)
+    serialized = [serialize_suggestion(s) for s in sugs]
+    return JsonResponse({'ok': True, 'suggestions': serialized})
+
+def api_offres_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'message': 'Non authentifié.'}, status=401)
+        
+    offres_qs = OffreMentorat.objects.filter(statut='active')
+    
+    # Optional filtering
+    matiere_query = request.GET.get('matiere', '').strip()
+    format_query = request.GET.get('format', '').strip()
+    if matiere_query:
+        offres_qs = offres_qs.filter(
+            Q(matieres__nom__icontains=matiere_query) |
+            Q(description__icontains=matiere_query)
+        )
+    if format_query:
+        fmt_map = {
+            'présentiel': 'presentiel',
+            'en ligne': 'en_ligne',
+            'les deux': 'les_deux',
+            'presentiel': 'presentiel',
+            'en_ligne': 'en_ligne',
+            'les_deux': 'les_deux'
+        }
+        fmt_val = fmt_map.get(format_query.lower())
+        if fmt_val:
+            offres_qs = offres_qs.filter(format=fmt_val)
+            
+    offres_list = []
+    for o in offres_qs.select_related('auteur').prefetch_related('matieres'):
+        format_display = "Les deux"
+        if o.format == 'presentiel':
+            format_display = "Présentiel"
+        elif o.format == 'en_ligne':
+            format_display = "En ligne"
+            
+        dispo_str = ""
+        if isinstance(o.disponibilites, dict):
+            parts = []
+            for j, slots in o.disponibilites.items():
+                parts.append(f"{j.capitalize()}: {', '.join(slots)}")
+            dispo_str = " | ".join(parts)
+        else:
+            dispo_str = str(o.disponibilites)
+            
+        offres_list.append({
+            'id': o.pk,
+            'auteur': o.auteur.get_full_name(),
+            'type': o.type,
+            'matiere': ", ".join([m.nom for m in o.matieres.all()]),
+            'description': o.description,
+            'disponibilites': dispo_str or "Non spécifié",
+            'format': format_display,
+            'filiere': o.auteur.get_filiere_display() or o.auteur.filiere or "IFRI",
+        })
+        
+    return JsonResponse({'ok': True, 'offres': offres_list})
+
+@csrf_exempt
+def api_create_offre_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'message': 'Non authentifié.'}, status=401)
+        
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'message': 'Méthode non autorisée.'}, status=405)
+        
+    try:
+        data = json.loads(request.body)
+        matiere_nom = data.get('matiere', '').strip()
+        description = data.get('description', '').strip()
+        disponibilites_str = data.get('disponibilites', '').strip()
+        format_str = data.get('format', 'les_deux').strip()
+        type_str = data.get('type', 'offre').strip()
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'message': 'Données JSON invalides.'}, status=400)
+        
+    if not matiere_nom or not description or not disponibilites_str:
+        return JsonResponse({'ok': False, 'message': 'Veuillez remplir tous les champs obligatoires.'}, status=400)
+        
+    fmt_map = {
+        'présentiel': 'presentiel',
+        'en ligne': 'en_ligne',
+        'les deux': 'les_deux',
+        'presentiel': 'presentiel',
+        'en_ligne': 'en_ligne',
+        'les_deux': 'les_deux'
+    }
+    format_val = fmt_map.get(format_str.lower(), 'les_deux')
+    
+    dispos = {}
+    if disponibilites_str:
+        parts = disponibilites_str.lower().split()
+        time_slot = parts[-1] if len(parts) > 1 else "Toute la journée"
+        days_part = " ".join(parts[:-1]) if len(parts) > 1 else parts[0]
+        for d in ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']:
+            if d in days_part:
+                dispos[d] = [time_slot]
+        if not dispos:
+            dispos['lundi'] = [disponibilites_str]
+            
+    matiere, _ = Matiere.objects.get_or_create(nom=matiere_nom)
+    
+    offre = OffreMentorat.objects.create(
+        auteur=request.user,
+        type=type_str,
+        format=format_val,
+        disponibilites=dispos,
+        description=description,
+        statut='active'
+    )
+    offre.matieres.add(matiere)
+    offre.save()
+    
+    return JsonResponse({'ok': True, 'message': 'Offre créée avec succès.'})

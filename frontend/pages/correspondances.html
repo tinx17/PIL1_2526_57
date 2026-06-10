@@ -149,6 +149,8 @@
             this.value + "%";
         });
 
+      let utilisateurs = []; // Rempli depuis l'API
+
       // Générer les cartes
       function afficherCorrespondances(liste) {
         const conteneur = document.getElementById("liste-correspondances");
@@ -170,31 +172,31 @@
               <i data-lucide="user-round"></i>
             </div>
             <div class="carte-info">
-              <h3>${u.nom}</h3>
-              <p class="filiere">${u.filiere} · ${u.niveau}</p>
+              <h3>${u.utilisateur.prenom} ${u.utilisateur.nom}</h3>
+              <p class="filiere">${u.utilisateur.filiere} · ${u.utilisateur.niveau}</p>
             </div>
-            <div class="score-badge">${u.score}%</div>
+            <div class="score-badge">${u.score_percentage}%</div>
           </div>
           <div class="carte-body">
             <div class="competences">
               <span class="label"><i data-lucide="check-circle"></i> Compétences</span>
               <div class="tags">
-                ${u.competences.map((c) => `<span class="tag tag-competence">${c}</span>`).join("")}
+                ${u.utilisateur.competences.map((c) => `<span class="tag tag-competence">${c}</span>`).join("")}
               </div>
             </div>
             <div class="lacunes">
               <span class="label"><i data-lucide="circle-help"></i> Lacunes</span>
               <div class="tags">
-                ${u.lacunes.map((l) => `<span class="tag tag-lacune">${l}</span>`).join("")}
+                ${u.utilisateur.lacunes.map((l) => `<span class="tag tag-lacune">${l}</span>`).join("")}
               </div>
             </div>
             <div class="disponibilites">
               <i data-lucide="calendar"></i>
-              <span>${u.disponibilites}</span>
+              <span>${formatDispo(u.utilisateur.disponibilites)}</span>
             </div>
           </div>
           <div class="carte-footer">
-            <button class="btn btn-primary btn-sm">
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='http://localhost:8000/matching/contact/${u.utilisateur.id}/'">
               <i data-lucide="message-circle"></i>
               Contacter
             </button>
@@ -204,6 +206,18 @@
           )
           .join("");
         lucide.createIcons();
+      }
+
+      function formatDispo(dispos) {
+        if (!dispos) return "Non spécifié";
+        if (typeof dispos === "object") {
+          let parts = [];
+          for (let j in dispos) {
+            parts.push(`${j.charAt(0).toUpperCase() + j.slice(1)}: ${dispos[j].join(", ")}`);
+          }
+          return parts.join(" | ") || "Non spécifié";
+        }
+        return String(dispos);
       }
 
       function filtrerUtilisateurs() {
@@ -216,10 +230,10 @@
         const resultats = utilisateurs.filter((u) => {
           const matchMatiere =
             matiere === "" ||
-            u.competences.some((c) => c.toLowerCase().includes(matiere)) ||
-            u.lacunes.some((l) => l.toLowerCase().includes(matiere));
-          const matchFiliere = filiere === "" || u.filiere === filiere;
-          const matchScore = u.score >= score;
+            u.utilisateur.competences.some((c) => c.toLowerCase().includes(matiere)) ||
+            u.utilisateur.lacunes.some((l) => l.toLowerCase().includes(matiere));
+          const matchFiliere = filiere === "" || u.utilisateur.filiere.includes(filiere);
+          const matchScore = u.score_percentage >= score;
           return matchMatiere && matchFiliere && matchScore;
         });
 
@@ -234,9 +248,22 @@
         afficherCorrespondances(utilisateurs);
       }
 
-      // Afficher toutes les correspondances au chargement
-      afficherCorrespondances(utilisateurs);
-      lucide.createIcons();
+      async function chargerCorrespondances() {
+        try {
+          const response = await fetch("http://localhost:8000/matching/api/suggestions/", {
+            credentials: "include"
+          });
+          const data = await response.json();
+          if (data.ok) {
+            utilisateurs = data.suggestions;
+            afficherCorrespondances(utilisateurs);
+          }
+        } catch (e) {
+          console.error("Erreur chargement correspondances", e);
+        }
+      }
+
+      chargerCorrespondances();
       }
     </script>
   </body>

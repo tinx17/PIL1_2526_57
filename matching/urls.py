@@ -22,4 +22,9 @@ urlpatterns = [
     # Actions
     path('contact/<int:user_id>/', views.contacter_view, name='contact'),
     path('close/<int:offre_id>/', views.fermer_offre_view, name='close_offer'),
+
+    # API endpoints
+    path('api/suggestions/', views.api_suggestions_view, name='api_suggestions'),
+    path('api/offres/', views.api_offres_view, name='api_offres'),
+    path('api/create-offre/', views.api_create_offre_view, name='api_create_offre'),
 ]

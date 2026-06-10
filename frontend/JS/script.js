@@ -1,4 +1,5 @@
 const SESSION_KEY = "ifri_mentorlink_session";
+const API_BASE = "http://localhost:8000";
 
 function getSession() {
   try {
@@ -73,44 +74,56 @@ function initNavbarAuth() {
   }
 
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", function () {
+    logoutBtn.addEventListener("click", async function () {
+      try {
+        await fetch(`${API_BASE}/accounts/api/logout/`, { method: 'POST', credentials: 'include' });
+      } catch (e) {
+        console.error("Logout API failed", e);
+      }
       clearSession();
       window.location.href = getAuthRedirectPath("accueil");
     });
   }
 }
 
-function connecterUtilisateur(email, motDePasse) {
-  const comptes = JSON.parse(localStorage.getItem("ifri_mentorlink_comptes") || "[]");
-  const compte = comptes.find(
-    (c) => c.email === email && c.motDePasse === motDePasse,
-  );
-
-  if (compte) {
-    setSession(compte);
-    return { ok: true };
+async function connecterUtilisateur(email, motDePasse) {
+  try {
+    const response = await fetch(`${API_BASE}/accounts/api/login/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: motDePasse }),
+      credentials: "include"
+    });
+    const data = await response.json();
+    if (data.ok) {
+      setSession(data.user);
+      return { ok: true };
+    } else {
+      return { ok: false, message: data.message || "Identifiants incorrects." };
+    }
+  } catch (error) {
+    return { ok: false, message: "Erreur de connexion au serveur backend." };
   }
-
-  if (email && motDePasse.length >= 6) {
-    setSession({ email, nom: "Utilisateur", prenom: "IFRI" });
-    return { ok: true, demo: true };
-  }
-
-  return { ok: false, message: "Identifiants incorrects." };
 }
 
-function inscrireUtilisateur(donnees) {
-  const comptes = JSON.parse(localStorage.getItem("ifri_mentorlink_comptes") || "[]");
-  const existe = comptes.some((c) => c.email === donnees.email);
-
-  if (existe) {
-    return { ok: false, message: "Cette adresse e-mail est déjà utilisée." };
+async function inscrireUtilisateur(donnees) {
+  try {
+    const response = await fetch(`${API_BASE}/accounts/api/register/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(donnees),
+      credentials: "include"
+    });
+    const data = await response.json();
+    if (data.ok) {
+      setSession(data.user);
+      return { ok: true };
+    } else {
+      return { ok: false, message: data.message || "Erreur d'inscription." };
+    }
+  } catch (error) {
+    return { ok: false, message: "Erreur de connexion au serveur backend." };
   }
-
-  comptes.push(donnees);
-  localStorage.setItem("ifri_mentorlink_comptes", JSON.stringify(comptes));
-  setSession(donnees);
-  return { ok: true };
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -173,7 +186,7 @@ function initConnexionPage() {
     });
   }
 
-  form.addEventListener("submit", function (event) {
+  form.addEventListener("submit", async function (event) {
     event.preventDefault();
     const email = document.getElementById("email").value.trim();
     const mdp = document.getElementById("mot-de-passe").value;
@@ -184,7 +197,7 @@ function initConnexionPage() {
       return;
     }
 
-    const resultat = connecterUtilisateur(email, mdp);
+    const resultat = await connecterUtilisateur(email, mdp);
     if (!resultat.ok) {
       erreur.textContent = resultat.message;
       return;
@@ -295,7 +308,7 @@ function initInscriptionPage() {
     allerEtape(2);
   });
 
-  form.addEventListener("submit", function (event) {
+  form.addEventListener("submit", async function (event) {
     event.preventDefault();
     const erreur = document.getElementById("erreur-3");
     erreur.style.color = "#dc2626";
@@ -314,7 +327,7 @@ function initInscriptionPage() {
       pointsFaibles: document.getElementById("points-faibles").value.trim(),
     };
 
-    const resultat = inscrireUtilisateur(donnees);
+    const resultat = await inscrireUtilisateur(donnees);
     if (!resultat.ok) {
       erreur.textContent = resultat.message;
       return;
@@ -344,19 +357,14 @@ function initOffresPage() {
     return;
   }
 
-  afficherOffres(offres);
+  chargerEtAfficherOffres();
 
-  offerForm.addEventListener("submit", function (event) {
+  offerForm.addEventListener("submit", async function (event) {
     event.preventDefault();
     const matiere = document.getElementById("input-matiere").value.trim();
-    const description = document
-      .getElementById("input-description")
-      .value.trim();
-    const disponibilites = document
-      .getElementById("input-disponibilites")
-      .value.trim();
+    const description = document.getElementById("input-description").value.trim();
+    const disponibilites = document.getElementById("input-disponibilites").value.trim();
     const format = document.getElementById("input-format").value;
-    const session = getSession();
 
     const errorElement = document.querySelector(".form-error");
     if (errorElement) {
@@ -366,69 +374,67 @@ function initOffresPage() {
 
     if (!matiere || !description || !disponibilites || !format) {
       if (errorElement) {
-        errorElement.textContent =
-          "Veuillez remplir tous les champs du formulaire.";
+        errorElement.textContent = "Veuillez remplir tous les champs du formulaire.";
       }
       return;
     }
 
-    const nextId =
-      offres.length > 0 ? Math.max(...offres.map((o) => o.id)) + 1 : 1;
-    const nouvelleOffre = {
-      id: nextId,
-      auteur: session
-        ? `${session.prenom || ""} ${session.nom || ""}`.trim() || "Vous"
-        : "Vous",
-      type: "offre",
-      matiere,
-      description,
-      disponibilites,
-      format,
-      filiere: session?.filiere || "IFRI/UAC",
-    };
-
-    offres.unshift(nouvelleOffre);
-    afficherOffres(offres);
-    offerForm.reset();
-
-    if (errorElement) {
-      errorElement.textContent = "Offre publiée avec succès.";
-      errorElement.classList.add("success");
-      setTimeout(function () {
-        errorElement.textContent = "";
-        errorElement.classList.remove("success");
-      }, 3000);
+    try {
+      const response = await fetch(`${API_BASE}/matching/api/create-offre/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ matiere, description, disponibilites, format, type: 'offre' }),
+        credentials: "include"
+      });
+      const resData = await response.json();
+      if (resData.ok) {
+        chargerEtAfficherOffres();
+        offerForm.reset();
+        if (errorElement) {
+          errorElement.textContent = "Offre publiée avec succès.";
+          errorElement.classList.add("success");
+          setTimeout(function () {
+            errorElement.textContent = "";
+            errorElement.classList.remove("success");
+          }, 3000);
+        }
+      } else {
+        if (errorElement) errorElement.textContent = resData.message || "Erreur de publication.";
+      }
+    } catch (e) {
+      if (errorElement) errorElement.textContent = "Erreur de connexion au serveur.";
     }
   });
 
   if (btnFilter) {
-    btnFilter.addEventListener("click", filtrerOffres);
+    btnFilter.addEventListener("click", chargerEtAfficherOffres);
   }
 
   if (btnReset) {
-    btnReset.addEventListener("click", reinitialiserFiltres);
+    btnReset.addEventListener("click", function() {
+      if (filterMatiere) filterMatiere.value = "";
+      if (filterFormat) filterFormat.value = "";
+      chargerEtAfficherOffres();
+    });
   }
 
-  function filtrerOffres() {
+  async function chargerEtAfficherOffres() {
     const matiereValue = filterMatiere ? filterMatiere.value.toLowerCase() : "";
     const formatValue = filterFormat ? filterFormat.value : "";
+    
+    let url = `${API_BASE}/matching/api/offres/?`;
+    if (matiereValue) url += `matiere=${encodeURIComponent(matiereValue)}&`;
+    if (formatValue) url += `format=${encodeURIComponent(formatValue)}&`;
 
-    const filtered = offres.filter((offre) => {
-      const matchMatiere =
-        matiereValue === "" ||
-        offre.matiere.toLowerCase().includes(matiereValue) ||
-        offre.description.toLowerCase().includes(matiereValue);
-      const matchFormat = formatValue === "" || offre.format === formatValue;
-      return matchMatiere && matchFormat;
-    });
-
-    afficherOffres(filtered);
-  }
-
-  function reinitialiserFiltres() {
-    if (filterMatiere) filterMatiere.value = "";
-    if (filterFormat) filterFormat.value = "";
-    afficherOffres(offres);
+    try {
+      const response = await fetch(url, { credentials: "include" });
+      const data = await response.json();
+      if (data.ok) {
+        afficherOffres(data.offres);
+      }
+    } catch (e) {
+      console.error("Failed to load offers", e);
+    }
   }
 }
 

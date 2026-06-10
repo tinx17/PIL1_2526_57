@@ -166,3 +166,145 @@ def reinitialiser_mdp_view(request):
         'form_reset': form,
         'show_reset': True
     })
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def api_login_view(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'message': 'Méthode non autorisée.'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        identifiant = data.get('email', '').strip() or data.get('identifiant', '').strip()
+        password = data.get('password', '') or data.get('motDePasse', '')
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'message': 'Données JSON invalides.'}, status=400)
+    
+    if not identifiant or not password:
+        return JsonResponse({'ok': False, 'message': 'Veuillez remplir tous les champs.'}, status=400)
+        
+    user = authenticate(request, username=identifiant, password=password)
+    if user is not None:
+        login(request, user)
+        return JsonResponse({
+            'ok': True,
+            'user': {
+                'id': user.pk,
+                'email': user.email,
+                'nom': user.nom,
+                'prenom': user.prenom,
+                'telephone': user.telephone,
+                'filiere': user.filiere,
+                'niveau': user.niveau,
+            }
+        })
+    else:
+        return JsonResponse({'ok': False, 'message': 'Identifiant ou mot de passe incorrect.'}, status=400)
+
+@csrf_exempt
+def api_register_view(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'message': 'Méthode non autorisée.'}, status=405)
+        
+    try:
+        data = json.loads(request.body)
+        nom = data.get('nom', '').strip()
+        prenom = data.get('prenom', '').strip()
+        email = data.get('email', '').strip()
+        telephone = data.get('telephone', '').strip()
+        password = data.get('motDePasse', '')
+        filiere = data.get('filiere', '').strip()
+        niveau = data.get('niveau', '').strip()
+        disponibilites_str = data.get('disponibilites', '').strip()
+        points_forts = data.get('pointsForts', '').strip()
+        points_faibles = data.get('pointsFaibles', '').strip()
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'message': 'Données JSON invalides.'}, status=400)
+        
+    if not nom or not prenom or not email or not telephone or not password:
+        return JsonResponse({'ok': False, 'message': 'Veuillez remplir les champs obligatoires.'}, status=400)
+        
+    if UserProfile.objects.filter(email=email).exists():
+        return JsonResponse({'ok': False, 'message': 'Cette adresse email est déjà utilisée.'}, status=400)
+        
+    if UserProfile.objects.filter(telephone=telephone).exists():
+        return JsonResponse({'ok': False, 'message': 'Ce numéro de téléphone est déjà utilisé.'}, status=400)
+
+    dispos = {}
+    if disponibilites_str:
+        parts = disponibilites_str.lower().split()
+        time_slot = parts[-1] if len(parts) > 1 else "Toute la journée"
+        days_part = " ".join(parts[:-1]) if len(parts) > 1 else parts[0]
+        for d in ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']:
+            if d in days_part:
+                dispos[d] = [time_slot]
+        if not dispos:
+            dispos['lundi'] = [disponibilites_str]
+            
+    # Créer l'utilisateur
+    user = UserProfile.objects.create_user(
+        username=email,
+        email=email,
+        nom=nom,
+        prenom=prenom,
+        telephone=telephone,
+        password=password,
+        filiere=filiere,
+        niveau=niveau,
+        disponibilites=dispos
+    )
+    
+    # Gérer les compétences (points forts)
+    if points_forts:
+        matieres_forts = [m.strip() for m in points_forts.split(',') if m.strip()]
+        for m_nom in matieres_forts:
+            mat, _ = Matiere.objects.get_or_create(nom=m_nom)
+            user.competences.add(mat)
+            
+    # Gérer les lacunes (points faibles)
+    if points_faibles:
+        matieres_faibles = [m.strip() for m in points_faibles.split(',') if m.strip()]
+        for m_nom in matieres_faibles:
+            mat, _ = Matiere.objects.get_or_create(nom=m_nom)
+            user.lacunes.add(mat)
+            
+    user.save()
+    login(request, user, backend='accounts.backends.EmailOrPhoneBackend')
+    
+    return JsonResponse({
+        'ok': True,
+        'user': {
+            'id': user.pk,
+            'email': user.email,
+            'nom': user.nom,
+            'prenom': user.prenom,
+            'telephone': user.telephone,
+            'filiere': user.filiere,
+            'niveau': user.niveau,
+        }
+    })
+
+@csrf_exempt
+def api_logout_view(request):
+    logout(request)
+    return JsonResponse({'ok': True})
+
+def api_user_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'message': 'Non authentifié.'}, status=401)
+        
+    return JsonResponse({
+        'ok': True,
+        'user': {
+            'id': request.user.pk,
+            'email': request.user.email,
+            'nom': request.user.nom,
+            'prenom': request.user.prenom,
+            'telephone': request.user.telephone,
+            'filiere': request.user.filiere,
+            'niveau': request.user.niveau,
+        }
+    })

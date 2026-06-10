@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'mentorlink.middleware.SimpleCORSMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -83,35 +84,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mentorlink.wsgi.application'
 
 # ──────────────────────────────────────────────
-# Base de données — PostgreSQL par défaut, SQLite possible en dev
+# Base de données — PostgreSQL par défaut, SQLite supprimé pour uniformiser
 # ──────────────────────────────────────────────
-DB_ENGINE = config('DB_ENGINE', default='postgresql')
-
-if DB_ENGINE == 'sqlite':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME', default='mentorlink_db'),
+        'USER': config('DB_USER', default='postgres'),
+        'PASSWORD': config('DB_PASSWORD', default=''),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='5432'),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default='mentorlink_db'),
-            'USER': config('DB_USER', default='postgres'),
-            'PASSWORD': config('DB_PASSWORD', default=''),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default='5432'),
-        }
-    }
+}
 
 # ──────────────────────────────────────────────
 # Django Channels — Couche de canaux (Redis par défaut, In-Memory en dev)
 # ──────────────────────────────────────────────
 CHANNEL_BACKEND = config('CHANNEL_BACKEND', default='redis')
 
-if CHANNEL_BACKEND == 'memory' or DB_ENGINE == 'sqlite':
+if CHANNEL_BACKEND == 'memory':
     CHANNEL_LAYERS = {
         'default': {
             'BACKEND': 'channels.layers.InMemoryChannelLayer',
