@@ -154,11 +154,11 @@ PIL1_2526_57/
 
 | Membre | Rôle |
 |--------|------|
-| Membre 1 | Chef de projet / Backend |
-| Membre 2 | Backend / Base de données |
-| Membre 3 | Frontend / Design |
-| Membre 4 | Frontend / Intégration |
-| Membre 5 | Tests / Documentation |
+| Royal AHOUMENOU | Chef de projet / Backend |
+| Giovanni GBASSE | Backend / Base de données |
+| Exaucée BOGNON | Frontend / Design |
+| Eckson AHOUANSOU | Frontend / Intégration |
+| Eckson AHOUANSOU | Tests / Documentation |
 
 ## Licence
 
