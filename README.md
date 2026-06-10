@@ -4,7 +4,7 @@ Plateforme monolithique de mentorat académique et professionnel développée av
 
 **Plateforme de mentorat académique et professionnel** développée dans le cadre du Projet Intégrateur de Licence (PIL1 – 2025-2026) à l'IFRI, Université d'Abomey-Calavi, Bénin.
 
-## 🎯 Description
+## Description
 
 IFRI_MentorLink met en relation des étudiants souhaitant offrir ou recevoir du mentorat académique et professionnel. L'application propose :
 
@@ -12,14 +12,14 @@ IFRI_MentorLink met en relation des étudiants souhaitant offrir ou recevoir du 
 - **Matching intelligent** : algorithme de mise en correspondance basé sur les compétences, disponibilités et filières
 - **Messagerie instantanée** : communication en temps réel via WebSockets
 
-## 📋 Prérequis
+## Prérequis
 
 - **Python** 3.10 ou supérieur
 - **PostgreSQL** 14 ou supérieur
 - **Redis** 6 ou supérieur (pour les WebSockets)
 - **pip** (gestionnaire de paquets Python)
 
-## 🚀 Installation
+## Installation
 
 ### 1. Cloner le dépôt
 
@@ -124,7 +124,7 @@ daphne mentorlink.asgi:application
 
 L'application est accessible sur [http://localhost:8000](http://localhost:8000).
 
-## 🛠️ Stack technique
+## Stack technique
 
 | Composant | Technologie |
 |-----------|-------------|
@@ -135,7 +135,7 @@ L'application est accessible sur [http://localhost:8000](http://localhost:8000).
 | Authentification | Django built-in auth + sessions |
 | Serveur ASGI | Daphne |
 
-## 📁 Structure du projet
+## Structure du projet
 
 ```
 PIL1_2526_57/
@@ -150,7 +150,7 @@ PIL1_2526_57/
 └── mentorlink_db.sql    # Dump SQL de la structure
 ```
 
-## 👥 Groupe 57
+## Groupe 57
 
 | Membre | Rôle |
 |--------|------|
@@ -160,6 +160,6 @@ PIL1_2526_57/
 | Membre 4 | Frontend / Intégration |
 | Membre 5 | Tests / Documentation |
 
-## 📄 Licence
+## Licence
 
 Ce projet est développé dans un cadre académique à l'IFRI, Université d'Abomey-Calavi.
