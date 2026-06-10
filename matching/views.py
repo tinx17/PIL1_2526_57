@@ -355,13 +355,13 @@ def api_create_offre_view(request):
         data = json.loads(request.body)
         matiere_nom = data.get('matiere', '').strip()
         description = data.get('description', '').strip()
-        disponibilites_str = data.get('disponibilites', '').strip()
+        disponibilites_data = data.get('disponibilites')
         format_str = data.get('format', 'les_deux').strip()
         type_str = data.get('type', 'offre').strip()
     except json.JSONDecodeError:
         return JsonResponse({'ok': False, 'message': 'Données JSON invalides.'}, status=400)
         
-    if not matiere_nom or not description or not disponibilites_str:
+    if not matiere_nom or not description or not disponibilites_data:
         return JsonResponse({'ok': False, 'message': 'Veuillez remplir tous les champs obligatoires.'}, status=400)
         
     fmt_map = {
@@ -375,18 +375,24 @@ def api_create_offre_view(request):
     format_val = fmt_map.get(format_str.lower(), 'les_deux')
     
     dispos = {}
-    if disponibilites_str:
-        parts = disponibilites_str.lower().split()
+    if isinstance(disponibilites_data, dict):
+        dispos = disponibilites_data
+    elif isinstance(disponibilites_data, str) and disponibilites_data.strip():
+        parts = disponibilites_data.strip().lower().split()
         time_slot = parts[-1] if len(parts) > 1 else "Toute la journée"
         days_part = " ".join(parts[:-1]) if len(parts) > 1 else parts[0]
         for d in ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']:
             if d in days_part:
                 dispos[d] = [time_slot]
         if not dispos:
-            dispos['lundi'] = [disponibilites_str]
+            dispos['lundi'] = [disponibilites_data]
             
     matiere, _ = Matiere.objects.get_or_create(nom=matiere_nom)
     
+    # Valider le type
+    if type_str not in ['offre', 'demande']:
+        type_str = 'offre'
+        
     offre = OffreMentorat.objects.create(
         auteur=request.user,
         type=type_str,
@@ -398,4 +404,5 @@ def api_create_offre_view(request):
     offre.matieres.add(matiere)
     offre.save()
     
-    return JsonResponse({'ok': True, 'message': 'Offre créée avec succès.'})
+    type_display = "Offre" if type_str == "offre" else "Demande"
+    return JsonResponse({'ok': True, 'message': f'{type_display} créée avec succès.'})

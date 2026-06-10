@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Réinitialiser le mot de passe — IFRI_MentorLink</title>
+    <link rel="stylesheet" href="../CSS/styles.css" />
+    <link rel="shortcut icon" href="../assets/img/icon.png" type="image/x-icon" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <div class="auth-page">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="auth-icon">
+            <i data-lucide="key-round"></i>
+          </div>
+          <h1>Réinitialisation</h1>
+          <p>Saisissez votre e-mail et votre nouveau mot de passe</p>
+        </div>
+
+        <form class="auth-form" id="form-reset-mdp" novalidate>
+          <div class="form-group">
+            <label for="email">Adresse e-mail</label>
+            <div class="input-wrapper">
+              <i data-lucide="mail" class="input-icon"></i>
+              <input
+                type="email"
+                id="email"
+                placeholder="votre@email.com"
+                autocomplete="email"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mot-de-passe">Nouveau mot de passe</label>
+            <div class="input-wrapper">
+              <i data-lucide="lock" class="input-icon"></i>
+              <input
+                type="password"
+                id="mot-de-passe"
+                placeholder="Minimum 6 caractères"
+                autocomplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-mdp"
+                id="toggle-mdp-1"
+                aria-label="Afficher le mot de passe"
+              >
+                <i data-lucide="eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mot-de-passe-conf">Confirmer le nouveau mot de passe</label>
+            <div class="input-wrapper">
+              <i data-lucide="lock" class="input-icon"></i>
+              <input
+                type="password"
+                id="mot-de-passe-conf"
+                placeholder="Confirmez votre mot de passe"
+                autocomplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-mdp"
+                id="toggle-mdp-2"
+                aria-label="Afficher le mot de passe"
+              >
+                <i data-lucide="eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <p class="form-error" id="erreur-reset"></p>
+
+          <button type="submit" class="btn btn-primary">
+            <i data-lucide="check-circle"></i>
+            Réinitialiser le mot de passe
+          </button>
+        </form>
+
+        <p class="auth-separator">
+          Retourner à la
+          <a href="connexion.html">page de connexion</a>
+        </p>
+      </div>
+    </div>
+
+    <script src="../JS/script.js"></script>
+    <script>
+      // Initialisation de la visibilité des mots de passe
+      const setupToggle = (btnId, inputId) => {
+        const toggleBtn = document.getElementById(btnId);
+        const champMdp = document.getElementById(inputId);
+        if (toggleBtn && champMdp) {
+          toggleBtn.addEventListener("click", function () {
+            const visible = champMdp.type === "text";
+            champMdp.type = visible ? "password" : "text";
+            toggleBtn.innerHTML = visible
+              ? '<i data-lucide="eye"></i>'
+              : '<i data-lucide="eye-off"></i>';
+            window.lucide?.createIcons();
+          });
+        }
+      };
+      setupToggle("toggle-mdp-1", "mot-de-passe");
+      setupToggle("toggle-mdp-2", "mot-de-passe-conf");
+
+      // Gestion de la soumission du formulaire
+      const form = document.getElementById("form-reset-mdp");
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("mot-de-passe").value;
+        const password_confirm = document.getElementById("mot-de-passe-conf").value;
+        const erreur = document.getElementById("erreur-reset");
+
+        erreur.style.color = "#dc2626";
+        erreur.textContent = "";
+
+        if (!email || !password || !password_confirm) {
+          erreur.textContent = "Veuillez remplir tous les champs.";
+          return;
+        }
+
+        if (password !== password_confirm) {
+          erreur.textContent = "Les mots de passe ne correspondent pas.";
+          return;
+        }
+
+        if (password.length < 6) {
+          erreur.textContent = "Le mot de passe doit contenir au moins 6 caractères.";
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_BASE}/accounts/api/reset-password/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, password_confirm }),
+          });
+          const data = await response.json();
+          if (data.ok) {
+            erreur.style.color = "#166534";
+            erreur.textContent = data.message + " Redirection...";
+            setTimeout(() => {
+              window.location.href = "connexion.html";
+            }, 2000);
+          } else {
+            erreur.textContent = data.message || "Erreur de réinitialisation.";
+          }
+        } catch (err) {
+          erreur.textContent = "Erreur de connexion au serveur backend.";
+        }
+      });
+
+      if (window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons();
+      }
+    </script>
+  </body>
+</html>

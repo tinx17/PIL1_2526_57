@@ -21,9 +21,11 @@ fi
 echo "Vérification des dépendances Python..."
 pip install -r requirements.txt
 
-# 3. Application des migrations base de données
+# 3. Application des migrations et peuplement initial
 echo "Application des migrations Django..."
 python manage.py migrate
+echo "Initialisation de la base de données avec les comptes de test (seed_db)..."
+python manage.py seed_db
 
 # 4. Lancement du Backend Django (port 8000)
 echo "Lancement du backend Django sur http://localhost:$BACKEND_PORT..."

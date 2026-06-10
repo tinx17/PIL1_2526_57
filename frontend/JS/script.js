@@ -493,14 +493,47 @@ function initOffresPage() {
     return;
   }
 
+  const PREDEFINED_MATIERES = [
+    "React", "Node.js", "Python", "Java", "C++", "TypeScript", "SQL",
+    "Machine Learning", "DevOps", "Cybersécurité", "Algorithmique", "UML",
+    "Cloud AWS", "Linux", "GraphQL", "Statistiques"
+  ];
+
+  // Générer les puces de matières pour le formulaire
+  const chipsContainer = document.getElementById("points-offres-chips");
+  if (chipsContainer) {
+    chipsContainer.innerHTML = PREDEFINED_MATIERES.map(m => `
+      <button type="button" class="chip chip-fort" data-value="${m}">
+        <span class="chip-text">${m}</span>
+      </button>
+    `).join("");
+
+    chipsContainer.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", function() {
+        chipsContainer.querySelectorAll(".chip").forEach(c => {
+          if (c !== this) c.classList.remove("active");
+        });
+        this.classList.toggle("active");
+      });
+    });
+  }
+
+  // Remplir le select de filtre de matière
+  if (filterMatiere) {
+    filterMatiere.innerHTML = '<option value="">Toutes les matières</option>' +
+      PREDEFINED_MATIERES.map(m => `<option value="${m}">${m}</option>`).join("");
+  }
+
   chargerEtAfficherOffres();
 
   offerForm.addEventListener("submit", async function (event) {
     event.preventDefault();
-    const matiere = document.getElementById("input-matiere").value.trim();
+    
+    const activeChip = chipsContainer ? chipsContainer.querySelector(".chip.active") : null;
+    const matiere = activeChip ? activeChip.dataset.value : "";
     const description = document.getElementById("input-description").value.trim();
-    const disponibilites = document.getElementById("input-disponibilites").value.trim();
     const format = document.getElementById("input-format").value;
+    const type = document.getElementById("input-type").value;
 
     const errorElement = document.querySelector(".form-error");
     if (errorElement) {
@@ -508,10 +541,37 @@ function initOffresPage() {
       errorElement.classList.remove("success");
     }
 
-    if (!matiere || !description || !disponibilites || !format) {
-      if (errorElement) {
-        errorElement.textContent = "Veuillez remplir tous les champs du formulaire.";
-      }
+    // Sérialiser la grille de disponibilités
+    const disponibilites = {};
+    let dispoCheckedCount = 0;
+    const rows = offerForm.querySelectorAll(".dispo-table tbody tr");
+    rows.forEach(row => {
+      const slot = row.dataset.slot;
+      const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(cb => {
+        if (cb.checked) {
+          dispoCheckedCount++;
+          const day = cb.dataset.day;
+          if (!disponibilites[day]) {
+            disponibilites[day] = [];
+          }
+          disponibilites[day].push(slot);
+        }
+      });
+    });
+
+    if (!matiere) {
+      if (errorElement) errorElement.textContent = "Veuillez sélectionner une matière.";
+      return;
+    }
+
+    if (!description || !format || !type) {
+      if (errorElement) errorElement.textContent = "Veuillez remplir tous les champs.";
+      return;
+    }
+
+    if (dispoCheckedCount === 0) {
+      if (errorElement) errorElement.textContent = "Veuillez cocher au moins un créneau horaire dans la grille.";
       return;
     }
 
@@ -519,15 +579,23 @@ function initOffresPage() {
       const response = await fetch(`${API_BASE}/matching/api/create-offre/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matiere, description, disponibilites, format, type: 'offre' }),
+        body: JSON.stringify({ matiere, description, disponibilites, format, type }),
         credentials: "include"
       });
       const resData = await response.json();
       if (resData.ok) {
         chargerEtAfficherOffres();
         offerForm.reset();
+        
+        // Réinitialiser les chips
+        if (chipsContainer) {
+          chipsContainer.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        }
+        // Réinitialiser les checkboxes
+        offerForm.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+
         if (errorElement) {
-          errorElement.textContent = "Offre publiée avec succès.";
+          errorElement.textContent = resData.message || "Publication publiée avec succès.";
           errorElement.classList.add("success");
           setTimeout(function () {
             errorElement.textContent = "";
@@ -584,7 +652,7 @@ function afficherOffres(liste) {
     conteneur.innerHTML = `
       <div class="vide">
         <i data-lucide="search-x"></i>
-        <p>Aucune offre trouvée</p>
+        <p>Aucune offre ou demande trouvée</p>
       </div>`;
     window.lucide?.createIcons();
     return;
@@ -592,34 +660,41 @@ function afficherOffres(liste) {
 
   conteneur.innerHTML = liste
     .map(
-      (offre) => `
-      <article class="offre-card">
-        <div class="offre-card-header">
-          <div>
-            <h3>${offre.matiere}</h3>
-            <p class="offre-meta">${offre.auteur} · ${offre.filiere}</p>
+      (offre) => {
+        const isOffre = offre.type === 'offre';
+        const typeClass = isOffre ? 'badge-offre' : 'badge-demande';
+        const typeText = isOffre ? 'Offre (Mentor)' : 'Demande (Mentoré)';
+        
+        return `
+        <article class="offre-card">
+          <div class="offre-card-header">
+            <div>
+              <span class="badge ${typeClass}" style="margin-bottom: 8px;">${typeText}</span>
+              <h3 style="margin-top: 4px; font-weight: 700; color: var(--blue-dark); font-size: 1.1rem;">${offre.matiere}</h3>
+              <p class="offre-meta" style="font-size: 0.8rem; margin: 4px 0 0 0;">${offre.auteur} · ${offre.filiere}</p>
+            </div>
+            <span class="badge" style="background: var(--blue-xlight); color: var(--blue-dark); border: 1px solid var(--blue-light);">${offre.format}</span>
           </div>
-          <span class="badge">${offre.format}</span>
-        </div>
 
-        <p class="offre-description">${offre.description}</p>
+          <p class="offre-description" style="margin: 12px 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-dark);">${offre.description}</p>
 
-        <div class="offre-card-meta">
-          <div>
-            <i data-lucide="calendar"></i>
-            <span>${offre.disponibilites}</span>
+          <div class="offre-card-meta" style="border-top: 1px solid var(--gray-200); padding-top: 12px; margin-bottom: 16px;">
+            <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
+              <span>${offre.disponibilites}</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-top: 6px;">
+              <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
+              <span>${offre.format}</span>
+            </div>
           </div>
-          <div>
-            <i data-lucide="map-pin"></i>
-            <span>${offre.format}</span>
-          </div>
-        </div>
 
-        <button class="btn btn-primary btn-sm" onclick="contacterUtilisateur(${offre.auteur_id})">
-          <i data-lucide="message-circle"></i>
-          Répondre
-        </button>
-      </article>`,
+          <button class="btn btn-primary btn-sm" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="contacterUtilisateur(${offre.auteur_id})">
+            <i data-lucide="message-circle" style="width: 14px; height: 14px;"></i>
+            Répondre
+          </button>
+        </article>`;
+      }
     )
     .join("");
 

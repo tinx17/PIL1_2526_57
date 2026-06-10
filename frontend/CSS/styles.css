@@ -198,7 +198,7 @@ p {
   align-items: center;
   justify-content: center;
   padding: 12px 24px;
-  border: 2px solid transparent; /* TOUS les boutons ont une bordure de 2px */
+  border: 2px solid transparent;
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
@@ -221,7 +221,7 @@ p {
 .btn-secondary {
   background: transparent;
   color: var(--blue-dark);
-  border-color: var(--blue-medium); /* Change uniquement la couleur, garde les 2px */
+  border-color: var(--blue-medium);
 }
 
 .btn-secondary:hover {
@@ -236,7 +236,7 @@ p {
 .btn-primary {
   background: var(--blue-medium);
   color: var(--white);
-  border: 2px solid var(--blue-medium); /* Ajouté pour correspondre exactement à la hauteur du bouton secondaire */
+  border: 2px solid var(--blue-medium);
 }
 
 .btn-primary:hover {
@@ -393,6 +393,13 @@ select:focus {
   padding: 18px;
   background: var(--white);
   box-shadow: 0 2px 10px rgba(11, 43, 69, 0.05);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.offre-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(11, 43, 69, 0.12);
+  border-color: var(--blue-medium);
 }
 
 .offre-card-header {
@@ -439,6 +446,18 @@ select:focus {
   font-weight: 700;
 }
 
+.badge-offre {
+  background: #e6f9ed !important;
+  color: #1f8b4c !important;
+  border: 1px solid #b7ebd0 !important;
+}
+
+.badge-demande {
+  background: #fff8eb !important;
+  color: #b7791f !important;
+  border: 1px solid #fbd38d !important;
+}
+
 .form-error {
   min-height: 20px;
   margin-bottom: 14px;
@@ -450,8 +469,9 @@ select:focus {
   color: #166534;
 }
 
-/* Responsive */
+/* Adaptabilité  */
 @media (max-width: 768px) {
+
   .matching-container,
   .offers-container,
   .offres-container {
@@ -534,11 +554,9 @@ select:focus {
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(
-    135deg,
-    var(--blue-light) 0%,
-    var(--blue-xlight) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--blue-light) 0%,
+      var(--blue-xlight) 100%);
   padding: 80px 16px;
   text-align: center;
 }
@@ -562,16 +580,17 @@ select:focus {
   display: flex;
   gap: 16px;
   justify-content: center;
-  align-items: center; /* Aligne les boutons strictement sur la même ligne horizontale */
+  align-items: center;
   flex-wrap: wrap;
 }
 
 .hero-buttons .btn {
   min-width: 220px;
-  flex: 0 0 auto; /* Empêche les boutons de s'étirer bizarrement sur grand écran */
+  flex: 0 0 auto;
   text-align: center;
   box-sizing: border-box;
 }
+
 .hero-buttons .btn-secondary {
   background: var(--white);
   color: var(--blue-dark);
@@ -700,7 +719,7 @@ select:focus {
   line-height: 1.6;
 }
 
-/* Responsive */
+/* Adaptabilité  */
 @media (max-width: 768px) {
   .hero h1 {
     font-size: 32px;
@@ -1077,7 +1096,7 @@ select:focus {
   margin: 0;
 }
 
-/* Responsive */
+/* Adaptabilité  */
 @media (max-width: 768px) {
   .correspondances-layout {
     grid-template-columns: 1fr;
@@ -1101,29 +1120,35 @@ select:focus {
   color: var(--blue-medium);
 }
 
-/* ── Responsive: Icon-only navbar for intermediate screens ── */
+/* ── Adaptabilité : Navigation avec icônes uniquement pour les écrans intermédiaires ── */
 @media (min-width: 769px) and (max-width: 1024px) {
   .nav-link .nav-text {
     display: none;
   }
+
   .nav-link .nav-icon {
     display: block;
   }
+
   .nav-links {
     gap: 8px;
   }
+
   .nav-link {
     padding: 8px;
     border-radius: 8px;
     position: relative;
   }
+
   .nav-link:hover {
     background: var(--blue-xlight);
   }
+
   .nav-link .nav-icon {
     width: 22px;
     height: 22px;
   }
+
   /* Tooltip on hover */
   .nav-link::after {
     content: attr(data-tooltip);
@@ -1143,6 +1168,7 @@ select:focus {
     transition: opacity 0.2s, transform 0.2s;
     z-index: 20;
   }
+
   .nav-link:hover::after {
     opacity: 1;
     transform: translateX(-50%) scale(1);
@@ -1291,9 +1317,11 @@ select:focus {
   .dashboard-stats {
     grid-template-columns: 1fr 1fr;
   }
+
   .dashboard-quick-links {
     grid-template-columns: 1fr;
   }
+
   .dashboard-header h1 {
     font-size: 24px;
   }
@@ -1305,7 +1333,7 @@ select:focus {
   }
 }
 
-/* ── Responsive nav for mobile: show both icons and text ── */
+/* ── Adaptabilité  navbar mobile ── */
 @media (max-width: 768px) {
   .nav-link .nav-icon {
     display: block;
@@ -1320,6 +1348,7 @@ select:focus {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1333,11 +1362,9 @@ select:focus {
   align-items: center;
   justify-content: center;
   padding: 48px 16px;
-  background: linear-gradient(
-    135deg,
-    var(--blue-light) 0%,
-    var(--blue-xlight) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--blue-light) 0%,
+      var(--blue-xlight) 100%);
 }
 
 .auth-card {
@@ -1759,12 +1786,13 @@ select:focus {
     margin-top: 16px;
     width: 100%;
   }
+
   .profil-actions .btn {
     width: 100%;
   }
 }
 
-/* Messagerie Layout */
+/* Forme de la messagerie */
 .messagerie-layout {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -1996,7 +2024,9 @@ select:focus {
     grid-template-columns: 1fr;
     height: calc(100vh - 120px);
   }
-  .discussions-panel.d-none, .chat-panel.d-none {
+
+  .discussions-panel.d-none,
+  .chat-panel.d-none {
     display: none !important;
   }
 }
@@ -2031,13 +2061,15 @@ select:focus {
 }
 
 .chip.chip-fort.active {
-  background: #3b91bc; /* var(--blue-medium) */
+  background: #3b91bc;
+  /* var(--blue-medium) */
   border-color: #3b91bc;
   color: var(--white);
 }
 
 .chip.chip-faible.active {
-  background: #0b2b45; /* var(--blue-dark) */
+  background: #0b2b45;
+  /* var(--blue-dark) */
   border-color: #0b2b45;
   color: var(--white);
 }
@@ -2058,7 +2090,8 @@ select:focus {
   text-align: center;
 }
 
-.dispo-table th, .dispo-table td {
+.dispo-table th,
+.dispo-table td {
   padding: 12px 10px;
   border: 1px solid var(--blue-xlight);
 }
@@ -2108,7 +2141,7 @@ select:focus {
   background: var(--blue-xlight);
 }
 
-.dispo-checkbox-label input[type="checkbox"]:checked + .dispo-checkbox-custom {
+.dispo-checkbox-label input[type="checkbox"]:checked+.dispo-checkbox-custom {
   background: #3b91bc;
   border-color: #3b91bc;
 }
@@ -2121,7 +2154,7 @@ select:focus {
   font-weight: bold;
 }
 
-.dispo-checkbox-label input[type="checkbox"]:checked + .dispo-checkbox-custom::after {
+.dispo-checkbox-label input[type="checkbox"]:checked+.dispo-checkbox-custom::after {
   display: block;
 }
 
@@ -2156,4 +2189,4 @@ select:focus {
   background: #3b91bc;
   border-color: #3b91bc;
   color: var(--white);
-}
+}

@@ -29,4 +29,5 @@ urlpatterns = [
     path('api/user/', views.api_user_view, name='api_user'),
     path('api/user/update/', views.api_update_profile_view, name='api_user_update'),
     path('api/matieres/', views.api_matieres_view, name='api_matieres'),
+    path('api/reset-password/', views.api_reset_password_view, name='api_reset_password'),
 ]

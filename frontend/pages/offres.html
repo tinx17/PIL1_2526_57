@@ -60,33 +60,99 @@
 
       <section class="offres-container">
         <div class="form-section">
-          <h2>Créer une offre</h2>
+          <h2>Créer une publication</h2>
           <form class="offer-form">
             <div class="form-group">
-              <label for="input-matiere">Matière</label>
-              <input
-                id="input-matiere"
-                type="text"
-                placeholder="Ex: Python"
-                required
-              />
+              <label for="input-type">Type de publication</label>
+              <select id="input-type" required>
+                <option value="offre">Je propose mon aide (Offre)</option>
+                <option value="demande">J'ai besoin d'aide (Demande)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Matière</label>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Sélectionnez la matière concernée (une seule).</p>
+              <div class="chips-container" id="points-offres-chips"></div>
             </div>
             <div class="form-group">
               <label for="input-description">Description</label>
               <textarea
                 id="input-description"
-                placeholder="Décrivez votre offre"
+                placeholder="Décrivez votre offre ou demande..."
                 required
               ></textarea>
             </div>
             <div class="form-group">
-              <label for="input-disponibilites">Disponibilités</label>
-              <input
-                id="input-disponibilites"
-                type="text"
-                placeholder="Lundi, Mercredi 14h-17h"
-                required
-              />
+              <label>Disponibilités</label>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Cochez les créneaux proposés pour ce mentorat.</p>
+              <div class="dispo-grid-container">
+                <table class="dispo-table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Lun</th>
+                      <th>Mar</th>
+                      <th>Mer</th>
+                      <th>Jeu</th>
+                      <th>Ven</th>
+                      <th>Sam</th>
+                      <th>Dim</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr data-slot="8h-10h">
+                      <td class="hour-label">8h-10h</td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="lundi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="mardi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="mercredi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="jeudi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="vendredi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="samedi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="dimanche"><span class="dispo-checkbox-custom"></span></label></td>
+                    </tr>
+                    <tr data-slot="10h-12h">
+                      <td class="hour-label">10h-12h</td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="lundi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="mardi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="mercredi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="jeudi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="vendredi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="samedi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="dimanche"><span class="dispo-checkbox-custom"></span></label></td>
+                    </tr>
+                    <tr data-slot="14h-16h">
+                      <td class="hour-label">14h-16h</td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="lundi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="mardi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="mercredi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="jeudi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="vendredi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="samedi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="dimanche"><span class="dispo-checkbox-custom"></span></label></td>
+                    </tr>
+                    <tr data-slot="16h-18h">
+                      <td class="hour-label">16h-18h</td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="lundi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="mardi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="mercredi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="jeudi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="vendredi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="samedi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="dimanche"><span class="dispo-checkbox-custom"></span></label></td>
+                    </tr>
+                    <tr data-slot="18h-20h">
+                      <td class="hour-label">18h-20h</td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="lundi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="mardi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="mercredi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="jeudi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="vendredi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="samedi"><span class="dispo-checkbox-custom"></span></label></td>
+                      <td><label class="dispo-checkbox-label"><input type="checkbox" data-day="dimanche"><span class="dispo-checkbox-custom"></span></label></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
             <div class="form-group">
               <label for="input-format">Format</label>
@@ -114,11 +180,9 @@
           <div class="offer-filters">
             <div class="form-group">
               <label for="offre-filter-matiere">Matière</label>
-              <input
-                id="offre-filter-matiere"
-                type="text"
-                placeholder="Ex: JavaScript"
-              />
+              <select id="offre-filter-matiere">
+                <option value="">Toutes les matières</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="offre-filter-format">Format</label>

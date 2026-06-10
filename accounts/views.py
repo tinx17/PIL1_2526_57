@@ -414,3 +414,38 @@ def api_matieres_view(request):
     matieres = list(Matiere.objects.values_list('nom', flat=True).order_by('nom'))
     return JsonResponse({'ok': True, 'matieres': matieres})
 
+
+@csrf_exempt
+def api_reset_password_view(request):
+    """
+    Réinitialisation du mot de passe via API JSON.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'message': 'Méthode non autorisée.'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        email = data.get('email', '').strip()
+        nouveau_password = data.get('password', '') or data.get('nouveau_password', '') or data.get('nouveauMotDePasse', '')
+        confirmer_password = data.get('password_confirm', '') or data.get('confirmer_password', '') or data.get('confirmerMotDePasse', '')
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'message': 'Données JSON invalides.'}, status=400)
+
+    if not email or not nouveau_password or not confirmer_password:
+        return JsonResponse({'ok': False, 'message': 'Veuillez remplir tous les champs.'}, status=400)
+
+    if nouveau_password != confirmer_password:
+        return JsonResponse({'ok': False, 'message': 'Les mots de passe ne correspondent pas.'}, status=400)
+
+    if len(nouveau_password) < 6:
+        return JsonResponse({'ok': False, 'message': 'Le mot de passe doit contenir au moins 6 caractères.'}, status=400)
+
+    try:
+        user = UserProfile.objects.get(email=email)
+        user.set_password(nouveau_password)
+        user.save()
+        return JsonResponse({'ok': True, 'message': 'Votre mot de passe a été réinitialisé avec succès.'})
+    except UserProfile.DoesNotExist:
+        return JsonResponse({'ok': False, 'message': 'Aucun compte n\'est associé à cette adresse email.'}, status=400)
+
+

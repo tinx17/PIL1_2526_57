@@ -73,7 +73,7 @@ GRANT ALL PRIVILEGES ON DATABASE mentorlink_db TO votre_user;
 Ou importez directement le dump SQL :
 
 ```bash
-sudo -u postgres psql mentorlink_db < mentorlink_db.sql
+sudo -u postgres psql mentorlink_db < bd/structure_bd_finale.sql
 ```
 
 ### 6. Appliquer les migrations
@@ -88,19 +88,16 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 8. Charger les matières initiales (optionnel)
+### 8. Initialiser avec les données de test (Recommandé)
+
+Pour peupler directement la base avec les matières prédéfinies et des comptes de test fictifs de l'IFRI avec historique de chat et offres de mentorat, exécutez la commande personnalisée :
 
 ```bash
-python manage.py shell -c "
-from accounts.models import Matiere
-matieres = ['Algorithmique', 'Base de Données', 'Python', 'Java', 'Réseaux',
-            'Systèmes d exploitation', 'Mathématiques', 'Anglais', 'Génie Logiciel',
-            'Intelligence Artificielle', 'Sécurité Informatique', 'Web Development']
-for m in matieres:
-    Matiere.objects.get_or_create(nom=m)
-print(f'{Matiere.objects.count()} matières créées.')
-"
+python manage.py seed_db
 ```
+
+*Note: Cette commande crée 5 utilisateurs de test (Eckson, Giovanni, Exaucée, Malik, Royal) ayant tous pour mot de passe `password123`.*
+
 
 ### 9. Lancer Redis
 
@@ -140,14 +137,16 @@ L'application est accessible sur [http://localhost:8000](http://localhost:8000).
 ```
 PIL1_2526_57/
 ├── manage.py
-├── mentorlink/          # Projet Django principal
-├── accounts/            # Gestion des comptes et profils
-├── matching/            # Offres/demandes + algorithme de matching
-├── messaging/           # Messagerie instantanée (WebSockets)
-├── static/              # Fichiers statiques (CSS, JS)
-├── templates/           # Templates globaux
-├── media/               # Fichiers uploadés (photos de profil)
-└── mentorlink_db.sql    # Dump SQL de la structure
+├── mentorlink/             # Configuration principale du projet Django
+├── accounts/               # Application gestion des comptes, profils et authentification
+├── matching/               # Application algorithme de matching et offres/demandes
+├── messaging/              # Application messagerie instantanée en temps réel (WebSockets)
+├── frontend/               # Fichiers statiques du client (HTML, CSS, JS)
+├── static/                 # Fichiers statiques collectés par Django
+├── templates/              # Templates HTML globaux
+├── bd/                     # Dossier contenant structure_bd_finale.sql
+├── run_project.bat         # Script de démarrage rapide pour Windows
+└── run_project.sh          # Script de démarrage rapide pour Linux/macOS
 ```
 
 ## 👥 Groupe 57

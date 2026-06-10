@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const chatEmpty = document.getElementById("chat-empty");
   const activeAvatar = document.getElementById("active-avatar");
   const activeName = document.getElementById("active-name");
-  const activeStatus = document.getElementById("active-status");
   const messagesBox = document.getElementById("chat-messages-box");
   const inputField = document.getElementById("chat-input-field");
   const sendBtn = document.getElementById("chat-send-btn");
@@ -165,7 +164,6 @@ document.addEventListener("DOMContentLoaded", function () {
           currentUserId = data.user_id;
           activeName.textContent = `${data.autre_participant.prenom} ${data.autre_participant.nom}`;
           activeAvatar.textContent = (data.autre_participant.prenom.charAt(0) + data.autre_participant.nom.charAt(0)).toUpperCase();
-          activeStatus.textContent = "En ligne"; // Statut générique
 
           renderMessages(data.messages);
           connectWebSocket(id);
