@@ -161,6 +161,9 @@ async function connecterUtilisateur(email, motDePasse) {
       body: JSON.stringify({ email, password: motDePasse }),
       credentials: "include"
     });
+    if (!response.ok) {
+      return { ok: false, message: `Erreur serveur (${response.status}). Vérifiez que la base de données PostgreSQL et le serveur Django sont correctement lancés.` };
+    }
     const data = await response.json();
     if (data.ok) {
       setSession(data.user);
@@ -169,7 +172,7 @@ async function connecterUtilisateur(email, motDePasse) {
       return { ok: false, message: data.message || "Identifiants incorrects." };
     }
   } catch (error) {
-    return { ok: false, message: "Erreur de connexion au serveur backend." };
+    return { ok: false, message: "Erreur de connexion au serveur backend. Assurez-vous que le serveur Django est actif." };
   }
 }
 
@@ -181,6 +184,9 @@ async function inscrireUtilisateur(donnees) {
       body: JSON.stringify(donnees),
       credentials: "include"
     });
+    if (!response.ok) {
+      return { ok: false, message: `Erreur serveur (${response.status}). Vérifiez que la base de données PostgreSQL et le serveur Django sont correctement lancés.` };
+    }
     const data = await response.json();
     if (data.ok) {
       setSession(data.user);
@@ -189,7 +195,7 @@ async function inscrireUtilisateur(donnees) {
       return { ok: false, message: data.message || "Erreur d'inscription." };
     }
   } catch (error) {
-    return { ok: false, message: "Erreur de connexion au serveur backend." };
+    return { ok: false, message: "Erreur de connexion au serveur backend. Assurez-vous que le serveur Django est actif." };
   }
 }
 
