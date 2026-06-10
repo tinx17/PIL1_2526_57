@@ -165,14 +165,26 @@
         }
         conteneur.innerHTML = liste
           .map(
-            (u) => `
+            (u) => {
+              const uPrenom = u.utilisateur.prenom || "";
+              const uNom = u.utilisateur.nom || "";
+              const uInitials = ((uPrenom.charAt(0) || "") + (uNom.charAt(0) || "")).toUpperCase() || "U";
+              
+              let cardAvatar = `<div class="avatar">${uInitials}</div>`;
+              if (u.utilisateur.photo_profil) {
+                cardAvatar = `
+                  <div class="avatar" style="overflow: hidden; border-radius: 50%; padding: 0;">
+                    <img src="${API_BASE}${u.utilisateur.photo_profil}" alt="${uPrenom} ${uNom}" style="width: 100%; height: 100%; object-fit: cover;" />
+                  </div>
+                `;
+              }
+              
+              return `
         <div class="carte-correspondance">
           <div class="carte-header">
-            <div class="avatar">
-              <i data-lucide="user-round"></i>
-            </div>
+            ${cardAvatar}
             <div class="carte-info">
-              <h3>${u.utilisateur.prenom} ${u.utilisateur.nom}</h3>
+              <h3>${uPrenom} ${uNom}</h3>
               <p class="filiere">${u.utilisateur.filiere} · ${u.utilisateur.niveau}</p>
             </div>
             <div class="score-badge">${u.score_percentage}%</div>
@@ -202,7 +214,8 @@
             </button>
           </div>
         </div>
-      `,
+      `;
+            }
           )
           .join("");
         lucide.createIcons();

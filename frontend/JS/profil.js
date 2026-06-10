@@ -69,7 +69,7 @@ function afficherProfil(utilisateur) {
         lignesCreneaux = `<li class="message-vide">Aucune disponibilité renseignée.</li>`;
     }
 
-    // Gestion des initiales de l'avatar
+    // Gestion des initiales de l'avatar et photo
     const prenom = utilisateur.prenom || "";
     const nom = utilisateur.nom || "";
     let initiales = "U";
@@ -77,10 +77,19 @@ function afficherProfil(utilisateur) {
         initiales = (prenom.charAt(0) + nom.charAt(0)).toUpperCase();
     }
 
+    let avatarHTML = `<div class="avatar">${initiales}</div>`;
+    if (utilisateur.photo_profil) {
+        avatarHTML = `
+            <div class="avatar" style="overflow: hidden; border-radius: 50%; padding: 0;">
+                <img src="${utilisateur.photo_profil}" alt="${prenom} ${nom}" style="width: 100%; height: 100%; object-fit: cover;" />
+            </div>
+        `;
+    }
+
     document.getElementById("profil").innerHTML = `
         <div class="carte-profil">
             <div class="profil-haut">
-                <div class="avatar">${initiales}</div>
+                ${avatarHTML}
                 <div class="profil-textes">
                     <h2 class="profil-nom">${prenom} ${nom}</h2>
                     <p class="profil-filiere"><strong>Filière :</strong> ${utilisateur.filiere || "Non renseignée"}</p>

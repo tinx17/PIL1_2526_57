@@ -9,6 +9,45 @@ document.addEventListener("DOMContentLoaded", function () {
   const bioInput = document.getElementById("bio");
   const errorPara = document.getElementById("erreur-edition");
 
+  // Photo de profil
+  const photoInput = document.getElementById("photo_profil");
+  const avatarImg = document.getElementById("avatar-preview-img");
+  const avatarInitials = document.getElementById("avatar-preview-initials");
+  const btnSupprimerPhoto = document.getElementById("btn-supprimer-photo");
+  let supprimerPhotoFlag = false;
+
+  if (photoInput) {
+    photoInput.addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+          errorPara.textContent = "❌ L'image ne doit pas dépasser 2 Mo.";
+          this.value = "";
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          avatarImg.src = e.target.result;
+          avatarImg.style.display = "block";
+          avatarInitials.style.display = "none";
+          btnSupprimerPhoto.style.display = "inline-flex";
+          supprimerPhotoFlag = false;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  if (btnSupprimerPhoto) {
+    btnSupprimerPhoto.addEventListener("click", function () {
+      avatarImg.style.display = "none";
+      avatarInitials.style.display = "flex";
+      btnSupprimerPhoto.style.display = "none";
+      if (photoInput) photoInput.value = "";
+      supprimerPhotoFlag = true;
+    });
+  }
+
   // Configuration niveau
   const levelBtns = document.querySelectorAll("#niveau-toggle-group .level-btn");
   levelBtns.forEach(btn => {
@@ -86,6 +125,20 @@ document.addEventListener("DOMContentLoaded", function () {
         telephoneInput.value = u.telephone || "";
         filiereSelect.value = u.filiere_raw || "";
         bioInput.value = u.bio || "";
+
+        // Afficher l'avatar ou les initiales
+        const initials = ((u.prenom || "").charAt(0) + (u.nom || "").charAt(0)).toUpperCase() || "U";
+        avatarInitials.textContent = initials;
+        if (u.photo_profil) {
+          avatarImg.src = u.photo_profil;
+          avatarImg.style.display = "block";
+          avatarInitials.style.display = "none";
+          btnSupprimerPhoto.style.display = "inline-flex";
+        } else {
+          avatarImg.style.display = "none";
+          avatarInitials.style.display = "flex";
+          btnSupprimerPhoto.style.display = "none";
+        }
 
         // Niveau d'études
         const activeLevel = u.niveau_raw || u.niveau || "";
@@ -171,29 +224,34 @@ document.addEventListener("DOMContentLoaded", function () {
       ? Array.from(lacunesContainer.querySelectorAll(".chip.active")).map(c => c.dataset.value)
       : [];
 
-    const payload = {
-      prenom: prenomInput.value.trim(),
-      nom: nomInput.value.trim(),
-      telephone: telephoneInput.value.trim(),
-      filiere: filiereSelect.value,
-      niveau: niveauInput.value,
-      bio: bioInput.value.trim(),
-      competences: competences,
-      lacunes: lacunes,
-      disponibilites: disponibilites,
-    };
+    const prenom = prenomInput.value.trim();
+    const nom = nomInput.value.trim();
+    const telephone = telephoneInput.value.trim();
 
-    if (!payload.prenom || !payload.nom || !payload.telephone) {
+    if (!prenom || !nom || !telephone) {
       errorPara.textContent = "❌ Veuillez remplir les champs obligatoires.";
       return;
     }
 
+    const formData = new FormData();
+    formData.append("prenom", prenom);
+    formData.append("nom", nom);
+    formData.append("telephone", telephone);
+    formData.append("filiere", filiereSelect.value);
+    formData.append("niveau", niveauInput.value);
+    formData.append("bio", bioInput.value.trim());
+    formData.append("competences", JSON.stringify(competences));
+    formData.append("lacunes", JSON.stringify(lacunes));
+    formData.append("disponibilites", JSON.stringify(disponibilites));
+    formData.append("supprimer_photo", supprimerPhotoFlag);
+
+    if (photoInput && photoInput.files && photoInput.files[0]) {
+      formData.append("photo_profil", photoInput.files[0]);
+    }
+
     fetch(`${API_BASE}/accounts/api/user/update/`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
+      body: formData,
       credentials: "include",
     })
       .then((res) => res.json())

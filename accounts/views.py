@@ -317,6 +317,7 @@ def api_user_view(request):
             'nom': request.user.nom,
             'prenom': request.user.prenom,
             'telephone': request.user.telephone,
+            'photo_profil': request.user.photo_profil.url if request.user.photo_profil else None,
             'filiere': request.user.get_filiere_display() or request.user.filiere,
             'filiere_raw': request.user.filiere,
             'niveau': request.user.get_niveau_display() or request.user.niveau,
@@ -336,20 +337,49 @@ def api_update_profile_view(request):
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'message': 'Méthode non autorisée.'}, status=405)
         
-    try:
-        data = json.loads(request.body)
-        nom = data.get('nom', '').strip()
-        prenom = data.get('prenom', '').strip()
-        telephone = data.get('telephone', '').strip()
-        filiere = data.get('filiere', '').strip()
-        niveau = data.get('niveau', '').strip()
-        bio = data.get('bio', '').strip()
-        competences_data = data.get('competences', [])
-        lacunes_data = data.get('lacunes', [])
-        disponibilites_data = data.get('disponibilites', {})
-    except json.JSONDecodeError:
-        return JsonResponse({'ok': False, 'message': 'Données JSON invalides.'}, status=400)
+    # Check if request has JSON or Multipart
+    if request.content_type and request.content_type.startswith('application/json'):
+        try:
+            data = json.loads(request.body)
+            nom = data.get('nom', '').strip()
+            prenom = data.get('prenom', '').strip()
+            telephone = data.get('telephone', '').strip()
+            filiere = data.get('filiere', '').strip()
+            niveau = data.get('niveau', '').strip()
+            bio = data.get('bio', '').strip()
+            competences_data = data.get('competences', [])
+            lacunes_data = data.get('lacunes', [])
+            disponibilites_data = data.get('disponibilites', {})
+            supprimer_photo = data.get('supprimer_photo', False)
+        except json.JSONDecodeError:
+            return JsonResponse({'ok': False, 'message': 'Données JSON invalides.'}, status=400)
+    else:
+        # Multipart/form-data or x-www-form-urlencoded
+        nom = request.POST.get('nom', '').strip()
+        prenom = request.POST.get('prenom', '').strip()
+        telephone = request.POST.get('telephone', '').strip()
+        filiere = request.POST.get('filiere', '').strip()
+        niveau = request.POST.get('niveau', '').strip()
+        bio = request.POST.get('bio', '').strip()
         
+        # Parse serialized JSON arrays/dicts
+        try:
+            competences_data = json.loads(request.POST.get('competences', '[]'))
+        except Exception:
+            competences_data = request.POST.get('competences', '')
+            
+        try:
+            lacunes_data = json.loads(request.POST.get('lacunes', '[]'))
+        except Exception:
+            lacunes_data = request.POST.get('lacunes', '')
+            
+        try:
+            disponibilites_data = json.loads(request.POST.get('disponibilites', '{}'))
+        except Exception:
+            disponibilites_data = request.POST.get('disponibilites', {})
+            
+        supprimer_photo = request.POST.get('supprimer_photo') == 'true' or request.POST.get('supprimer_photo') is True
+
     if not nom or not prenom or not telephone:
         return JsonResponse({'ok': False, 'message': 'Veuillez remplir les champs obligatoires.'}, status=400)
         
@@ -365,6 +395,12 @@ def api_update_profile_view(request):
     user.niveau = niveau
     user.bio = bio
     
+    # Photo de profil
+    if supprimer_photo:
+        user.photo_profil = None
+    elif 'photo_profil' in request.FILES:
+        user.photo_profil = request.FILES['photo_profil']
+        
     # Disponibilités: accepter un dict JSON structuré {jour: [créneau, ...]}
     if isinstance(disponibilites_data, dict):
         user.disponibilites = disponibilites_data
