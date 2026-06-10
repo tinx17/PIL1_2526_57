@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Demander de l'aide (Demande){% endblock %}
+
+{% block content %}
+<div class="container-sm" id="create-request-container">
+    <div class="page-header">
+        <h1 class="page-title">Demander de l'aide (Demande)</h1>
+        <p class="page-subtitle">Publiez une demande de mentorat pour trouver un tuteur dans les matières où vous rencontrez des difficultés.</p>
+    </div>
+
+    <div class="card">
+        <form method="post" id="create-request-form">
+            {% csrf_token %}
+            <input type="hidden" name="disponibilites" id="id_disponibilites" value="{{ disponibilites_json }}">
+
+            <div class="form-group">
+                <label class="form-label">Matières pour lesquelles vous demandez de l'aide *</label>
+                <div class="checkbox-group">
+                    {% for checkbox in form.matieres %}
+                    <label>{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+                    {% endfor %}
+                </div>
+                {% if form.matieres.errors %}
+                    <div class="form-error">{{ form.matieres.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label class="form-label" for="id_format">Format du mentorat souhaité</label>
+                {{ form.format }}
+                {% if form.format.errors %}
+                    <div class="form-error">{{ form.format.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label class="form-label" for="id_description">Description / Précisions</label>
+                {{ form.description }}
+                <div class="form-help">Optionnel. Précisez vos difficultés ou vos objectifs (préparation d'examen, projet, etc.).</div>
+                {% if form.description.errors %}
+                    <div class="form-error">{{ form.description.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Grille interactive des disponibilités spécifiques à cette demande -->
+            <div class="form-group" style="margin-top: 1.5rem;">
+                <label class="form-label">Disponibilités pour ce mentorat</label>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                    Par défaut, ce sont les disponibilités de votre profil. Vous pouvez les adapter pour cette demande.
+                </p>
+                <div class="availability-grid" id="request-availability-grid">
+                    <!-- Rempli par le script JavaScript -->
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;" id="btn-submit-request">
+                    🚀 Publier la demande
+                </button>
+                <a href="{% url 'matching:dashboard' %}" class="btn btn-outline" style="flex: 1; text-align: center;">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+        const creneaux = ['08h-10h', '10h-12h', '12h-14h', '14h-16h', '16h-18h', '18h-20h'];
+
+        const hiddenInput = document.getElementById('id_disponibilites');
+        let selectedDispos = {};
+        try {
+            selectedDispos = JSON.parse(hiddenInput.value || '{}');
+        } catch(e) {
+            selectedDispos = {};
+        }
+
+        const gridContainer = document.getElementById('request-availability-grid');
+
+        // Créer l'en-tête de la grille
+        gridContainer.appendChild(createCell('', 'header-cell'));
+        jours.forEach(jour => {
+            const label = jour.charAt(0).toUpperCase() + jour.slice(1, 3);
+            gridContainer.appendChild(createCell(label, 'header-cell'));
+        });
+
+        // Créer les lignes de la grille
+        creneaux.forEach(creneau => {
+            gridContainer.appendChild(createCell(creneau, 'time-cell'));
+
+            jours.forEach(jour => {
+                const cell = document.createElement('div');
+                cell.className = 'slot-cell';
+                cell.dataset.jour = jour;
+                cell.dataset.creneau = creneau;
+
+                if (selectedDispos[jour] && selectedDispos[jour].includes(creneau)) {
+                    cell.classList.add('selected');
+                }
+
+                cell.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                    updateHiddenInput();
+                });
+
+                gridContainer.appendChild(cell);
+            });
+        });
+
+        function createCell(text, className) {
+            const cell = document.createElement('div');
+            cell.className = className;
+            cell.textContent = text;
+            return cell;
+        }
+
+        function updateHiddenInput() {
+            const dispos = {};
+            jours.forEach(jour => {
+                dispos[jour] = [];
+            });
+
+            gridContainer.querySelectorAll('.slot-cell.selected').forEach(cell => {
+                const jour = cell.dataset.jour;
+                const creneau = cell.dataset.creneau;
+                dispos[jour].push(creneau);
+            });
+
+            Object.keys(dispos).forEach(jour => {
+                if (dispos[jour].length === 0) {
+                    delete dispos[jour];
+                }
+            });
+
+            hiddenInput.value = JSON.stringify(dispos);
+        }
+    });
+</script>
+{% endblock %}

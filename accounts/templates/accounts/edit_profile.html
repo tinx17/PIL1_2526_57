@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Modifier le profil{% endblock %}
+
+{% block content %}
+<div class="container" id="edit-profile-container">
+    <div class="page-header">
+        <h1 class="page-title">Modifier mon profil</h1>
+        <p class="page-subtitle">Mettez à jour vos informations personnelles, académiques et vos horaires disponibles.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="edit-profile-form">
+        {% csrf_token %}
+        {{ form.disponibilites }}
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;" class="edit-profile-grid">
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Informations de base -->
+                <div class="card">
+                    <h2 class="profile-section-title">Informations de base</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label" for="id_nom">Nom</label>
+                            {{ form.nom }}
+                            {% if form.nom.errors %}<div class="form-error">{{ form.nom.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="id_prenom">Prénom</label>
+                            {{ form.prenom }}
+                            {% if form.prenom.errors %}<div class="form-error">{{ form.prenom.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="id_telephone">Téléphone</label>
+                        {{ form.telephone }}
+                        {% if form.telephone.errors %}<div class="form-error">{{ form.telephone.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label" for="id_filiere">Filière</label>
+                            {{ form.filiere }}
+                            {% if form.filiere.errors %}<div class="form-error">{{ form.filiere.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="id_niveau">Niveau</label>
+                            {{ form.niveau }}
+                            {% if form.niveau.errors %}<div class="form-error">{{ form.niveau.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="id_bio">Biographie courte</label>
+                        {{ form.bio }}
+                        {% if form.bio.errors %}<div class="form-error">{{ form.bio.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Grille interactive des disponibilités -->
+                <div class="card">
+                    <h2 class="profile-section-title">Mes Disponibilités Hebdomadaires</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                        Cliquez sur les créneaux horaires pour indiquer les moments où vous êtes libre pour du mentorat.
+                    </p>
+
+                    <div class="availability-grid" id="interactive-availability-grid">
+                        <!-- Rempli par le script JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Photo de profil et enregistrement -->
+                <div class="card">
+                    <h2 class="profile-section-title">Photo de profil</h2>
+                    <div style="text-align: center; margin-bottom: 1rem;">
+                        <div class="profile-avatar" style="margin: 0 auto 1rem;" id="avatar-preview">
+                            {% if user.photo_profil %}
+                                <img src="{{ user.photo_profil.url }}" alt="{{ user.get_full_name }}">
+                            {% else %}
+                                {{ user.prenom|first }}{{ user.nom|first }}
+                            {% endif %}
+                        </div>
+                        {{ form.photo_profil }}
+                        {% if form.photo_profil.errors %}<div class="form-error">{{ form.photo_profil.errors.0 }}</div>{% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="btn-save-profile">
+                        💾 Enregistrer les modifications
+                    </button>
+                    <a href="{% url 'accounts:profil' user_id=user.pk %}" class="btn btn-outline btn-block" style="margin-top: 8px;">
+                        Annuler
+                    </a>
+                </div>
+
+                <!-- Compétences et lacunes -->
+                <div class="card">
+                    <h2 class="profile-section-title">Sujets d'intérêt</h2>
+                    <div class="form-group">
+                        <label class="form-label">Mes compétences (Peut aider en) :</label>
+                        <div class="checkbox-group">
+                            {% for checkbox in form.competences %}
+                            <label>{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label class="form-label">Mes lacunes (A besoin d'aide en) :</label>
+                        <div class="checkbox-group">
+                            {% for checkbox in form.lacunes %}
+                            <label>{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Liste des jours et créneaux horaires
+        const jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+        const creneaux = ['08h-10h', '10h-12h', '12h-14h', '14h-16h', '16h-18h', '18h-20h'];
+
+        // Charger les disponibilités existantes
+        const hiddenInput = document.getElementById('id_disponibilites');
+        let selectedDispos = {};
+        try {
+            selectedDispos = JSON.parse(hiddenInput.value || '{}');
+        } catch(e) {
+            selectedDispos = {};
+        }
+
+        const gridContainer = document.getElementById('interactive-availability-grid');
+
+        // Créer l'en-tête de la grille
+        gridContainer.appendChild(createCell('', 'header-cell'));
+        jours.forEach(jour => {
+            const label = jour.charAt(0).toUpperCase() + jour.slice(1, 3);
+            gridContainer.appendChild(createCell(label, 'header-cell'));
+        });
+
+        // Créer les lignes de la grille
+        creneaux.forEach(creneau => {
+            // Première cellule : l'heure
+            gridContainer.appendChild(createCell(creneau, 'time-cell'));
+
+            // Cellules de jours pour ce créneau
+            jours.forEach(jour => {
+                const cell = document.createElement('div');
+                cell.className = 'slot-cell';
+                cell.dataset.jour = jour;
+                cell.dataset.creneau = creneau;
+
+                // Si le créneau est sélectionné, l'activer
+                if (selectedDispos[jour] && selectedDispos[jour].includes(creneau)) {
+                    cell.classList.add('selected');
+                }
+
+                // Ajouter l'événement de clic pour basculer la sélection
+                cell.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                    updateHiddenInput();
+                });
+
+                gridContainer.appendChild(cell);
+            });
+        });
+
+        function createCell(text, className) {
+            const cell = document.createElement('div');
+            cell.className = className;
+            cell.textContent = text;
+            return cell;
+        }
+
+        function updateHiddenInput() {
+            const dispos = {};
+            jours.forEach(jour => {
+                dispos[jour] = [];
+            });
+
+            gridContainer.querySelectorAll('.slot-cell.selected').forEach(cell => {
+                const jour = cell.dataset.jour;
+                const creneau = cell.dataset.creneau;
+                if (!dispos[jour]) {
+                    dispos[jour] = [];
+                }
+                dispos[jour].push(creneau);
+            });
+
+            // Supprimer les jours vides pour nettoyer le JSON
+            Object.keys(dispos).forEach(jour => {
+                if (dispos[jour].length === 0) {
+                    delete dispos[jour];
+                }
+            });
+
+            hiddenInput.value = JSON.stringify(dispos);
+        }
+
+        // Aperçu d'image en direct
+        const fileInput = document.getElementById('id_photo_profil');
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        const preview = document.getElementById('avatar-preview');
+                        preview.innerHTML = '';
+                        preview.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

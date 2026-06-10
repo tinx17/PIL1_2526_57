@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rechercher des annonces{% endblock %}
+
+{% block content %}
+<div class="container-sm" id="search-container">
+    <div class="page-header text-center" style="margin-bottom: 2.5rem; text-align: center;">
+        <h1 class="page-title">Rechercher des mentors ou tutorés</h1>
+        <p class="page-subtitle">Trouvez des opportunités de mentorat ou de l'aide académique au sein de l'IFRI.</p>
+    </div>
+
+    <div class="card">
+        <form method="get" action="{% url 'matching:results' %}" id="search-form">
+            <div class="form-group">
+                <label class="form-label" for="id_recherche">Recherche libre</label>
+                <div style="position: relative;">
+                    {{ form.q }}
+                </div>
+                <div class="form-help">Recherchez par nom d'étudiant, matière ou mots-clés de description.</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1rem;" class="filter-grid">
+                <div class="form-group">
+                    <label class="form-label" for="id_type">Type d'annonce</label>
+                    {{ form.type }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_matiere">Matière spécifique</label>
+                    {{ form.matiere }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1rem;" class="filter-grid">
+                <div class="form-group">
+                    <label class="form-label" for="id_format_recherche">Format</label>
+                    {{ form.format }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_jour">Jour de disponibilité</label>
+                    {{ form.jour }}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.5rem;" id="btn-search-submit">
+                🔍 Rechercher
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

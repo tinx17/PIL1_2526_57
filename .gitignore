@@ -1,40 +1,32 @@
-# === ENVIRONNEMENT VIRTUEL PYTHON ===
-backend/venv/
-backend/.venv/
+# Environnement Python
+venv/
 env/
-.env
-*.pyc
+.venv/
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
 
-# === BASE DE DONNÉES LOCALES ===
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
 
-*.sqlite3
-*.db
-database/donnees_locales.sql
+# Fichiers d'environnement
+.env
 
-# === SÉCURITÉ ET SECRETS (TRÈS IMPORTANT) ===
-
-backend/mentorlink_backend/local_settings.py
-.secrets
-.env.*
-
-# === ENVIRONNEMENT DE DÉVELOPPEMENT (IDE) ===
+# IDE
 .vscode/
 .idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 *.swp
+*.swo
+*~
 
-# === SYSTÈME D'EXPLOITATION ===
-
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+# OS
 .DS_Store
+Thumbs.db
 
-# === LOGS ET FICHIERS TEMPORAIRES ===
-*.log
-backend/static/
-backend/media/
+# Fichiers statiques collectés
+staticfiles/

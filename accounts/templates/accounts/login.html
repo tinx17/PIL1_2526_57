@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion — IFRI MentorLink</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;">
+                <span class="logo-icon" style="width:44px;height:44px;font-size:1.2rem;">ML</span>
+            </div>
+            <h1>Bon retour !</h1>
+            <p>Connectez-vous à votre espace MentorLink</p>
+        </div>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        {% if show_reset %}
+        <!-- Formulaire de réinitialisation du mot de passe -->
+        <div style="margin-bottom:1rem;">
+            <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">Réinitialiser le mot de passe</h2>
+            <form method="post" action="{% url 'accounts:reset_password' %}" id="reset-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="id_email">Email</label>
+                    {{ form_reset.email }}
+                    {% if form_reset.email.errors %}<div class="form-error">{{ form_reset.email.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_nouveau_password">Nouveau mot de passe</label>
+                    {{ form_reset.nouveau_password }}
+                    {% if form_reset.nouveau_password.errors %}<div class="form-error">{{ form_reset.nouveau_password.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_confirmer_password">Confirmer</label>
+                    {{ form_reset.confirmer_password }}
+                </div>
+                {% if form_reset.non_field_errors %}<div class="alert alert-error">{{ form_reset.non_field_errors.0 }}</div>{% endif %}
+                <button type="submit" class="btn btn-primary btn-block">Réinitialiser</button>
+            </form>
+            <div style="text-align:center;margin-top:1rem;">
+                <a href="{% url 'accounts:login' %}">← Retour à la connexion</a>
+            </div>
+        </div>
+        {% else %}
+        <!-- Formulaire de connexion -->
+        <form method="post" id="login-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="id_identifiant">Email ou Téléphone</label>
+                {{ form.identifiant }}
+                {% if form.identifiant.errors %}<div class="form-error">{{ form.identifiant.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="id_password">Mot de passe</label>
+                {{ form.password }}
+                {% if form.password.errors %}<div class="form-error">{{ form.password.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div style="text-align:right;margin-bottom:1rem;">
+                <a href="{% url 'accounts:reset_password' %}" style="font-size:0.85rem;">Mot de passe oublié ?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-login">
+                Se connecter
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Pas encore de compte ? <a href="{% url 'accounts:register' %}">Créer un compte</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

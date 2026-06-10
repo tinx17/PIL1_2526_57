@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="container" id="dashboard-container">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 class="page-title">Bienvenue, {{ user.prenom }} !</h1>
+            <p class="page-subtitle">Voici vos suggestions de mentorat et l'aperçu de votre activité.</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="{% url 'matching:create_offer' %}" class="btn btn-primary" id="btn-create-offer">
+                ➕ Proposer mon aide
+            </a>
+            <a href="{% url 'matching:create_request' %}" class="btn btn-secondary" id="btn-create-request">
+                🙋 Demander de l'aide
+            </a>
+        </div>
+    </div>
+
+    <!-- Grille des statistiques -->
+    <div class="stats-grid" id="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.total_offres }}</div>
+            <div class="stat-label">Offres Publiées</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.total_demandes }}</div>
+            <div class="stat-label">Demandes Publiées</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.total_matchings }}</div>
+            <div class="stat-label">Mises en relation (Matches)</div>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;" class="dashboard-content">
+        <!-- Suggestions de matching -->
+        <div>
+            <h2 class="profile-section-title" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                🔥 Suggestions personnalisées
+            </h2>
+
+            <div class="suggestions-grid" id="suggestions-list">
+                {% for sug in suggestions %}
+                    <div class="card suggestion-card" id="suggestion-{{ sug.utilisateur.id }}">
+                        <div class="suggestion-header">
+                            <div class="suggestion-avatar">
+                                {% if sug.utilisateur.photo_profil %}
+                                    <img src="{{ sug.utilisateur.photo_profil.url }}" alt="{{ sug.utilisateur.get_full_name }}">
+                                {% else %}
+                                    {{ sug.utilisateur.prenom|first }}{{ sug.utilisateur.nom|first }}
+                                {% endif %}
+                            </div>
+                            <div class="suggestion-info">
+                                <h3>{{ sug.utilisateur.get_full_name }}</h3>
+                                <p>{{ sug.utilisateur.get_filiere_display }} • {{ sug.utilisateur.get_niveau_display }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Score de compatibilité avec barre de progression colorée -->
+                        <div class="suggestion-score">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);">Compatibilité</span>
+                                <span class="score-label">{{ sug.score_percentage }}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill {% if sug.score < 0.4 %}low{% elif sug.score < 0.75 %}medium{% else %}high{% endif %}" 
+                                     style="width: {{ sug.score_percentage }}%;">
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if sug.matieres_communes %}
+                        <div style="margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px; color: var(--primary);">Matières communes :</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                {% for mat in sug.matieres_communes %}
+                                    <span class="badge-tag badge-matiere" style="font-size: 0.7rem;">{{ mat.nom }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if sug.disponibilites_communes %}
+                        <div>
+                            <span style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px; color: var(--primary);">Créneaux communs :</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                {% for jour, creneaux in sug.disponibilites_communes.items %}
+                                    <span class="badge-tag badge-filiere" style="font-size: 0.7rem; text-transform: capitalize;">{{ jour|slice:":3" }} ({{ creneaux|join:", " }})</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="suggestion-actions">
+                            <a href="{% url 'accounts:profil' user_id=sug.utilisateur.id %}" class="btn btn-outline btn-sm" style="flex: 1;">
+                                Voir profil
+                            </a>
+                            <a href="{% url 'matching:contact' user_id=sug.utilisateur.id %}" class="btn btn-primary btn-sm" style="flex: 1;" id="btn-contact-sug-{{ sug.utilisateur.id }}">
+                                💬 Contacter
+                            </a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 2rem; border-style: dashed; border-color: var(--border);">
+                        <p style="color: var(--text-secondary); font-style: italic;">
+                            Aucune suggestion disponible pour le moment. Essayez de mettre à jour vos compétences, lacunes et disponibilités dans votre profil pour améliorer le matching !
+                        </p>
+                        <a href="{% url 'accounts:edit_profil' %}" class="btn btn-primary btn-sm" style="margin-top: 1rem;">
+                            ✏️ Mettre à jour mon profil
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Mes publications actives -->
+        <div>
+            <h2 class="profile-section-title" style="margin-bottom: 1rem;">
+                📋 Mes Annonces Actives
+            </h2>
+
+            <div style="display: flex; flex-direction: column; gap: 1rem;" id="user-publications-list">
+                {% for offre in mes_offres %}
+                    <div class="card" style="padding: 1rem;" id="offre-card-{{ offre.id }}">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                            <span class="badge-tag {% if offre.type == 'offre' %}badge-offre{% else %}badge-demande{% endif %}">
+                                {{ offre.get_type_display }}
+                            </span>
+                            <a href="{% url 'matching:close_offer' offre_id=offre.id %}" class="btn btn-danger btn-sm btn-icon" title="Fermer cette annonce" id="btn-close-{{ offre.id }}">
+                                ❌
+                            </a>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
+                            {% for mat in offre.matieres.all %}
+                                <span class="badge-tag badge-matiere">{{ mat.nom }}</span>
+                            {% endfor %}
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">{{ offre.description }}</p>
+                        <div style="font-size: 0.75rem; color: var(--text-light); margin-top: 6px;">
+                            Publié le {{ offre.date_creation|date:"d/m/Y" }}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="card" style="text-align: center; padding: 1.5rem; border-style: dashed; border-color: var(--border);">
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic;">
+                            Vous n'avez pas de publication active.
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
