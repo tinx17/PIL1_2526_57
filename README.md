@@ -1,5 +1,7 @@
 # IFRI_MentorLink — Groupe 57 (PIL1_2526_57)
 
+Plateforme monolithique de mentorat académique et professionnel développée avec Django pour les étudiants de l'IFRI, Université d'Abomey-Calavi, Bénin.
+
 **Plateforme de mentorat académique et professionnel** développée dans le cadre du Projet Intégrateur de Licence (PIL1 – 2025-2026) à l'IFRI, Université d'Abomey-Calavi, Bénin.
 
 ## 🎯 Description

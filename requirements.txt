@@ -1,7 +1,11 @@
-Django>=4.2
+Django==6.0.6
 psycopg2-binary
 channels
 channels-redis
 daphne
 python-decouple
-Pillow
+pillow==12.2.0
+asgiref==3.11.1
+djangorestframework==3.17.1
+sqlparse==0.5.5
+tzdata==2026.2
