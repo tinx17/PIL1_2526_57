@@ -262,7 +262,6 @@ function initConnexionPage() {
     window.location.href = getAuthRedirectPath("accueil");
   });
 }
-
 function initInscriptionPage() {
   const form = document.getElementById("form-inscription");
   if (!form) {
@@ -273,6 +272,64 @@ function initInscriptionPage() {
 
   let etapeActuelle = 1;
   const totalEtapes = 3;
+
+  // Configuration niveau
+  const niveauInput = document.getElementById("niveau");
+  const levelBtns = document.querySelectorAll("#niveau-toggle-group .level-btn");
+  levelBtns.forEach(btn => {
+    btn.addEventListener("click", function() {
+      levelBtns.forEach(b => b.classList.remove("active"));
+      this.classList.add("active");
+      niveauInput.value = this.dataset.value;
+    });
+  });
+
+  // Configuration matières
+  const PREDEFINED_MATIERES = [
+    "React", "Node.js", "Python", "Java", "C++", "TypeScript", "SQL",
+    "Machine Learning", "DevOps", "Cybersécurité", "Algorithmique", "UML",
+    "Cloud AWS", "Linux", "GraphQL", "Statistiques"
+  ];
+  const fortsContainer = document.getElementById("points-forts-chips");
+  const faiblesContainer = document.getElementById("points-faibles-chips");
+
+  if (fortsContainer && faiblesContainer) {
+    fortsContainer.innerHTML = PREDEFINED_MATIERES.map(m => `
+      <button type="button" class="chip chip-fort" data-value="${m}">
+        <span class="chip-text">${m}</span>
+      </button>
+    `).join("");
+
+    faiblesContainer.innerHTML = PREDEFINED_MATIERES.map(m => `
+      <button type="button" class="chip chip-faible" data-value="${m}">
+        <span class="chip-text">${m}</span>
+      </button>
+    `).join("");
+
+    fortsContainer.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", function() {
+        this.classList.toggle("active");
+        const val = this.dataset.value;
+        if (this.classList.contains("active")) {
+          // Décocher en faible
+          const corresp = faiblesContainer.querySelector(`.chip[data-value="${val}"]`);
+          if (corresp) corresp.classList.remove("active");
+        }
+      });
+    });
+
+    faiblesContainer.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", function() {
+        this.classList.toggle("active");
+        const val = this.dataset.value;
+        if (this.classList.contains("active")) {
+          // Décocher en fort
+          const corresp = fortsContainer.querySelector(`.chip[data-value="${val}"]`);
+          if (corresp) corresp.classList.remove("active");
+        }
+      });
+    });
+  }
 
   function allerEtape(n) {
     for (let i = 1; i <= totalEtapes; i++) {
@@ -313,8 +370,7 @@ function initInscriptionPage() {
       return false;
     }
     if (mdp.length < 6) {
-      erreur.textContent =
-        "Le mot de passe doit contenir au moins 6 caractères.";
+      erreur.textContent = "Le mot de passe doit contenir au moins 6 caractères.";
       return false;
     }
     erreur.textContent = "";
@@ -326,8 +382,12 @@ function initInscriptionPage() {
     const niveau = document.getElementById("niveau").value;
     const erreur = document.getElementById("erreur-2");
 
-    if (!filiere || !niveau) {
-      erreur.textContent = "Veuillez sélectionner une filière et un niveau.";
+    if (!filiere) {
+      erreur.textContent = "Veuillez sélectionner une filière.";
+      return false;
+    }
+    if (!niveau) {
+      erreur.textContent = "Veuillez sélectionner un niveau d'études.";
       return false;
     }
     erreur.textContent = "";
@@ -369,6 +429,27 @@ function initInscriptionPage() {
     erreur.style.color = "#dc2626";
     erreur.textContent = "";
 
+    // Sérialiser la grille de disponibilités
+    const disponibilites = {};
+    const rows = document.querySelectorAll(".dispo-table tbody tr");
+    rows.forEach(row => {
+      const slot = row.dataset.slot;
+      const checkboxes = row.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(cb => {
+        if (cb.checked) {
+          const day = cb.dataset.day;
+          if (!disponibilites[day]) {
+            disponibilites[day] = [];
+          }
+          disponibilites[day].push(slot);
+        }
+      });
+    });
+
+    // Sérialiser les puces de matières
+    const pointsForts = Array.from(fortsContainer.querySelectorAll(".chip.active")).map(c => c.dataset.value);
+    const pointsFaibles = Array.from(faiblesContainer.querySelectorAll(".chip.active")).map(c => c.dataset.value);
+
     const donnees = {
       nom: document.getElementById("nom").value.trim(),
       prenom: document.getElementById("prenom").value.trim(),
@@ -377,9 +458,9 @@ function initInscriptionPage() {
       motDePasse: document.getElementById("mot-de-passe").value,
       filiere: document.getElementById("filiere").value,
       niveau: document.getElementById("niveau").value,
-      disponibilites: document.getElementById("disponibilites").value.trim(),
-      pointsForts: document.getElementById("points-forts").value.trim(),
-      pointsFaibles: document.getElementById("points-faibles").value.trim(),
+      disponibilites: disponibilites,
+      pointsForts: pointsForts,
+      pointsFaibles: pointsFaibles,
     };
 
     const resultat = await inscrireUtilisateur(donnees);
