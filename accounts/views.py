@@ -305,7 +305,11 @@ def api_user_view(request):
             'nom': request.user.nom,
             'prenom': request.user.prenom,
             'telephone': request.user.telephone,
-            'filiere': request.user.filiere,
-            'niveau': request.user.niveau,
+            'filiere': request.user.get_filiere_display() or request.user.filiere,
+            'niveau': request.user.get_niveau_display() or request.user.niveau,
+            'bio': request.user.bio or '',
+            'competences': [m.nom for m in request.user.competences.all()],
+            'lacunes': [m.nom for m in request.user.lacunes.all()],
+            'disponibilites': request.user.disponibilites,
         }
     })

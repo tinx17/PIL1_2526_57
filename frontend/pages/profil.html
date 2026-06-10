@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mon Profil - IFRI_MentorLink</title>
+    <link rel="stylesheet" href="../CSS/styles.css" />
+    <link
+      rel="shortcut icon"
+      href="../assets/img/icon.png"
+      type="image/x-icon"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <nav class="site-nav">
+      <div class="container nav-inner">
+        <a href="../index.html" class="brand">
+          <img
+            src="../assets/img/icon.png"
+            alt="IFRI_MentorLink logo"
+            class="nav-logo"
+          />
+          IFRI_MentorLink
+        </a>
+        <button
+          class="nav-toggle"
+          aria-label="Ouvrir le menu"
+          aria-expanded="false"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="nav-actions">
+          <div class="nav-links">
+            <a href="../index.html" class="nav-link">Accueil</a>
+            <a href="correspondances.html" class="nav-link">Correspondances</a>
+            <a href="offres.html" class="nav-link">Offres & Demandes</a>
+          </div>
+          <div class="nav-auth" id="auth-buttons">
+            <a href="connexion.html" class="btn btn-secondary btn-sm">Connexion</a>
+            <a href="inscription.html" class="btn btn-primary btn-sm">Inscription</a>
+          </div>
+          <div class="nav-user d-none" id="auth-user">
+            <span class="nav-user-name"></span>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-deconnexion">
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- CONTENU PRINCIPAL -->
+    <main class="container" style="padding-bottom: 60px;">
+      <div class="page-header">
+        <h1>Mon Profil</h1>
+        <p>Gérez et visualisez vos informations personnelles et académiques</p>
+      </div>
+
+      <div id="profil"></div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-brand">
+          <img src="../assets/img/icon.png" alt="Logo" class="nav-logo" />
+          <span>IFRI_MentorLink</span>
+        </div>
+        <div class="footer-links">
+          <a href="../index.html">Accueil</a>
+          <a href="correspondances.html">Correspondances</a>
+          <a href="offres.html">Offres & Demandes</a>
+        </div>
+        <p class="footer-copy">© 2025 IFRI_MentorLink · IFRI/UAC</p>
+      </div>
+    </footer>
+
+    <script src="../JS/script.js"></script>
+    <script src="../JS/profil.js"></script>
+    <script>
+      requireAuth();
+    </script>
+  </body>
+</html>

@@ -1422,3 +1422,115 @@ select:focus {
     width: 28px;
   }
 }
+
+/* Profile Page Styles */
+.carte-profil {
+  background: var(--white);
+  border: 1px solid var(--blue-light);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(11, 43, 69, 0.05);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profil-haut {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: var(--blue-dark);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.profil-textes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profil-nom {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--blue-dark);
+  margin-bottom: 4px;
+}
+
+.profil-filiere {
+  font-size: 16px;
+  color: var(--blue-medium);
+  font-weight: 600;
+  margin: 0;
+}
+
+.profil-niveau,
+.profil-email {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.separateur {
+  border: none;
+  border-top: 1px solid var(--blue-light);
+  margin: 24px 0;
+}
+
+.section-profil {
+  margin-bottom: 24px;
+}
+
+.section-profil:last-child {
+  margin-bottom: 0;
+}
+
+.titre-section {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--blue-dark);
+  margin-bottom: 12px;
+}
+
+.profil-bio {
+  font-size: 15px;
+  color: var(--text-dark);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.liste-creneaux {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+}
+
+.item-creneau {
+  background-color: var(--blue-xlight);
+  border-left: 4px solid var(--blue-medium);
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--blue-dark);
+}
+
+@media (max-width: 768px) {
+  .profil-haut {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+}

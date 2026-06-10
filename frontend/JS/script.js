@@ -31,6 +31,9 @@ function getAuthRedirectPath(page) {
   if (page === "accueil") {
     return inPages ? "../index.html" : "index.html";
   }
+  if (page === "profil") {
+    return inPages ? "profil.html" : "pages/profil.html";
+  }
   return inPages ? "../index.html" : "index.html";
 }
 
@@ -67,6 +70,21 @@ function initNavbarAuth() {
       userName.textContent = session.prenom
         ? `${session.prenom} ${session.nom || ""}`.trim()
         : session.email || "Utilisateur";
+      userName.style.cursor = "pointer";
+      userName.style.textDecoration = "none";
+      userName.style.color = "var(--blue-medium)";
+      userName.style.fontWeight = "600";
+      userName.addEventListener("click", function () {
+        window.location.href = getAuthRedirectPath("profil");
+      });
+      userName.addEventListener("mouseover", function () {
+        userName.style.color = "var(--blue-dark)";
+        userName.style.textDecoration = "underline";
+      });
+      userName.addEventListener("mouseout", function () {
+        userName.style.color = "var(--blue-medium)";
+        userName.style.textDecoration = "none";
+      });
     }
   } else {
     authButtons?.classList.remove("d-none");
