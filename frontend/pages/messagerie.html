@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Messages - IFRI_MentorLink</title>
+    <link rel="stylesheet" href="../CSS/styles.css" />
+    <link
+      rel="shortcut icon"
+      href="../assets/img/icon.png"
+      type="image/x-icon"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <nav class="site-nav">
+      <div class="container nav-inner">
+        <a href="../index.html" class="brand">
+          <img
+            src="../assets/img/icon.png"
+            alt="IFRI_MentorLink logo"
+            class="nav-logo"
+          />
+          IFRI_MentorLink
+        </a>
+        <button
+          class="nav-toggle"
+          aria-label="Ouvrir le menu"
+          aria-expanded="false"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="nav-actions">
+          <div class="nav-links">
+            <a href="../index.html" class="nav-link">Accueil</a>
+            <a href="correspondances.html" class="nav-link">Correspondances</a>
+            <a href="offres.html" class="nav-link">Offres & Demandes</a>
+          </div>
+          <div class="nav-auth" id="auth-buttons">
+            <a href="connexion.html" class="btn btn-secondary btn-sm">Connexion</a>
+            <a href="inscription.html" class="btn btn-primary btn-sm">Inscription</a>
+          </div>
+          <div class="nav-user d-none" id="auth-user">
+            <span class="nav-user-name"></span>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-deconnexion">
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- CONTENU PRINCIPAL -->
+    <main class="container" style="padding-bottom: 40px; padding-top: 40px;">
+      <div class="messagerie-layout">
+        <!-- Panneau de gauche: discussions -->
+        <div class="discussions-panel" id="discussions-panel">
+          <div class="panel-header">
+            <h2>Discussions</h2>
+          </div>
+          <div class="conversation-list" id="conversation-list">
+            <!-- Rempli dynamiquement -->
+          </div>
+        </div>
+
+        <!-- Panneau de droite: zone de chat -->
+        <div class="chat-panel card d-none" id="chat-panel">
+          <!-- Chat actif -->
+          <div id="chat-active" class="d-none">
+            <div class="chat-header">
+              <button class="btn btn-secondary btn-sm d-none" id="btn-back-conversations" style="padding: 6px 12px; margin-right: 10px;">
+                ← Retour
+              </button>
+              <div class="avatar" id="active-avatar">U</div>
+              <div>
+                <h2 id="active-name" style="font-size: 1.1rem; font-weight: 700; margin: 0;"></h2>
+                <p id="active-status" style="font-size: 0.75rem; color: var(--text-muted); margin: 0;"></p>
+              </div>
+            </div>
+            <div class="chat-messages" id="chat-messages-box">
+              <!-- Messages -->
+            </div>
+            <div class="chat-input-area">
+              <input type="text" id="chat-input-field" placeholder="Écrivez votre message ici..." autocomplete="off" />
+              <button class="btn btn-primary" id="chat-send-btn" style="border-radius: 9999px; display: flex; align-items: center; gap: 8px;">
+                Envoyer <i data-lucide="send" style="width: 14px; height: 14px;"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Chat vide (état initial) -->
+          <div id="chat-empty" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-muted); text-align:center; padding: 40px;">
+            <i data-lucide="message-square" style="width: 48px; height: 48px; stroke: var(--blue-light); margin-bottom: 16px;"></i>
+            <p style="font-size: 1.1rem;">Sélectionnez une discussion pour commencer à chatter.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-brand">
+          <img src="../assets/img/icon.png" alt="Logo" class="nav-logo" />
+          <span>IFRI_MentorLink</span>
+        </div>
+        <div class="footer-links">
+          <a href="../index.html">Accueil</a>
+          <a href="correspondances.html">Correspondances</a>
+          <a href="offres.html">Offres & Demandes</a>
+        </div>
+        <p class="footer-copy">© 2025 IFRI_MentorLink · IFRI/UAC</p>
+      </div>
+    </footer>
+
+    <script src="../JS/script.js"></script>
+    <script src="../JS/messagerie.js"></script>
+    <script>
+      requireAuth();
+    </script>
+  </body>
+</html>

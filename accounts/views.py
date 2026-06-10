@@ -306,10 +306,81 @@ def api_user_view(request):
             'prenom': request.user.prenom,
             'telephone': request.user.telephone,
             'filiere': request.user.get_filiere_display() or request.user.filiere,
+            'filiere_raw': request.user.filiere,
             'niveau': request.user.get_niveau_display() or request.user.niveau,
+            'niveau_raw': request.user.niveau,
             'bio': request.user.bio or '',
             'competences': [m.nom for m in request.user.competences.all()],
             'lacunes': [m.nom for m in request.user.lacunes.all()],
             'disponibilites': request.user.disponibilites,
         }
     })
+
+@csrf_exempt
+def api_update_profile_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'message': 'Non authentifié.'}, status=401)
+        
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'message': 'Méthode non autorisée.'}, status=405)
+        
+    try:
+        data = json.loads(request.body)
+        nom = data.get('nom', '').strip()
+        prenom = data.get('prenom', '').strip()
+        telephone = data.get('telephone', '').strip()
+        filiere = data.get('filiere', '').strip()
+        niveau = data.get('niveau', '').strip()
+        bio = data.get('bio', '').strip()
+        competences_str = data.get('competences', '').strip()
+        lacunes_str = data.get('lacunes', '').strip()
+        disponibilites_str = data.get('disponibilites', '').strip()
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'message': 'Données JSON invalides.'}, status=400)
+        
+    if not nom or not prenom or not telephone:
+        return JsonResponse({'ok': False, 'message': 'Veuillez remplir les champs obligatoires.'}, status=400)
+        
+    # Vérifier l'unicité du téléphone (exclure l'utilisateur connecté)
+    if UserProfile.objects.filter(telephone=telephone).exclude(pk=request.user.pk).exists():
+        return JsonResponse({'ok': False, 'message': 'Ce numéro de téléphone est déjà utilisé.'}, status=400)
+        
+    user = request.user
+    user.nom = nom
+    user.prenom = prenom
+    user.telephone = telephone
+    user.filiere = filiere
+    user.niveau = niveau
+    user.bio = bio
+    
+    # Parser les disponibilités si disponibilites_str est fourni
+    if disponibilites_str:
+        dispos = {}
+        parts = disponibilites_str.lower().split()
+        time_slot = parts[-1] if len(parts) > 1 else "Toute la journée"
+        days_part = " ".join(parts[:-1]) if len(parts) > 1 else parts[0]
+        for d in ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']:
+            if d in days_part:
+                dispos[d] = [time_slot]
+        if not dispos:
+            dispos['lundi'] = [disponibilites_str]
+        user.disponibilites = dispos
+        
+    # Mettre à jour les compétences (points forts)
+    user.competences.clear()
+    if competences_str:
+        matieres_forts = [m.strip() for m in competences_str.split(',') if m.strip()]
+        for m_nom in matieres_forts:
+            mat, _ = Matiere.objects.get_or_create(nom=m_nom)
+            user.competences.add(mat)
+            
+    # Mettre à jour les lacunes (points faibles)
+    user.lacunes.clear()
+    if lacunes_str:
+        matieres_faibles = [m.strip() for m in lacunes_str.split(',') if m.strip()]
+        for m_nom in matieres_faibles:
+            mat, _ = Matiere.objects.get_or_create(nom=m_nom)
+            user.lacunes.add(mat)
+            
+    user.save()
+    return JsonResponse({'ok': True, 'message': 'Profil mis à jour avec succès.'})

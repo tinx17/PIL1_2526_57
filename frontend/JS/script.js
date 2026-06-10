@@ -34,6 +34,9 @@ function getAuthRedirectPath(page) {
   if (page === "profil") {
     return inPages ? "profil.html" : "pages/profil.html";
   }
+  if (page === "messagerie") {
+    return inPages ? "messagerie.html" : "pages/messagerie.html";
+  }
   return inPages ? "../index.html" : "index.html";
 }
 
@@ -66,6 +69,20 @@ function initNavbarAuth() {
   if (session && session.connecte) {
     authButtons?.classList.add("d-none");
     authUser?.classList.remove("d-none");
+    
+    // Injecter l'onglet "Messages" s'il n'existe pas encore
+    const navLinks = document.querySelector(".nav-links");
+    if (navLinks && !document.getElementById("nav-link-messagerie")) {
+      const isMessageriePage = window.location.pathname.includes("messagerie.html");
+      const messagerieUrl = getAuthRedirectPath("messagerie");
+      const linkHtml = `<a href="${messagerieUrl}" class="nav-link ${isMessageriePage ? 'active' : ''}" id="nav-link-messagerie">Messages</a>`;
+      navLinks.insertAdjacentHTML("beforeend", linkHtml);
+      
+      // Lancer la logique de notification de fond
+      fetchInitialNotificationsCount();
+      connectNotifications();
+    }
+
     if (userName) {
       userName.textContent = session.prenom
         ? `${session.prenom} ${session.nom || ""}`.trim()
@@ -497,7 +514,7 @@ function afficherOffres(liste) {
           </div>
         </div>
 
-        <button class="btn btn-primary btn-sm">
+        <button class="btn btn-primary btn-sm" onclick="contacterUtilisateur(${offre.auteur_id})">
           <i data-lucide="message-circle"></i>
           Répondre
         </button>
@@ -506,4 +523,98 @@ function afficherOffres(liste) {
     .join("");
 
   window.lucide?.createIcons();
+}
+
+function connectNotifications() {
+  const session = getSession();
+  if (!session || !session.connecte) return;
+
+  const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+  const wsUrl = `${wsScheme}://localhost:8000/ws/notifications/`;
+
+  console.log("Connecting background notification socket to:", wsUrl);
+  const socket = new WebSocket(wsUrl);
+
+  socket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+    if (data.type === 'notification') {
+      updateNavbarBadge(data.count);
+    }
+  };
+
+  socket.onclose = function () {
+    // Tenter de reconnecter après 5 secondes
+    setTimeout(connectNotifications, 5000);
+  };
+}
+
+function updateNavbarBadge(count) {
+  const navMsg = document.getElementById("nav-link-messagerie");
+  if (!navMsg) return;
+
+  let badge = document.getElementById("nav-unread-badge");
+  if (count > 0) {
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.id = "nav-unread-badge";
+      // Style premium pour le badge
+      badge.style.background = "#3b91bc"; // var(--blue-medium)
+      badge.style.color = "#ffffff";
+      badge.style.fontSize = "10px";
+      badge.style.fontWeight = "700";
+      badge.style.borderRadius = "50%";
+      badge.style.minWidth = "16px";
+      badge.style.height = "16px";
+      badge.style.display = "inline-flex";
+      badge.style.alignItems = "center";
+      badge.style.justifyContent = "center";
+      badge.style.marginLeft = "6px";
+      badge.style.padding = "2px";
+      navMsg.appendChild(badge);
+    }
+    badge.textContent = count;
+  } else {
+    if (badge) badge.remove();
+  }
+}
+
+function fetchInitialNotificationsCount() {
+  fetch(`${API_BASE}/messaging/api/conversations/`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.ok && data.conversations) {
+        const totalUnread = data.conversations.reduce((sum, c) => sum + c.non_lus, 0);
+        updateNavbarBadge(totalUnread);
+      }
+    })
+    .catch((err) => console.error("Initial notification fetch failed", err));
+}
+
+function contacterUtilisateur(userId) {
+  fetch(`${API_BASE}/messaging/api/conversations/start/${userId}/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Erreur serveur.");
+      return res.json();
+    })
+    .then((data) => {
+      if (data.ok && data.conversation_id) {
+        const inPages = window.location.pathname.includes("/pages/");
+        const targetUrl = inPages ? `messagerie.html?conv=${data.conversation_id}` : `pages/messagerie.html?conv=${data.conversation_id}`;
+        window.location.href = targetUrl;
+      } else {
+        alert("Impossible d'ouvrir la discussion : " + (data.message || "Erreur inconnue"));
+      }
+    })
+    .catch((err) => {
+      console.error("Error starting conversation:", err);
+      alert("Erreur de connexion : " + err.message);
+    });
 }

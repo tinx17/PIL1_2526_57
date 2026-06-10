@@ -87,6 +87,11 @@ function afficherProfil(utilisateur) {
                     <p class="profil-niveau"><strong>Niveau d'études :</strong> ${utilisateur.niveau || "Non renseigné"}</p>
                     <p class="profil-email"><strong>Email :</strong> ${utilisateur.email || "Non renseigné"}</p>
                 </div>
+                <div class="profil-actions">
+                    <a href="editer_profil.html" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="edit-3"></i> Modifier le profil
+                    </a>
+                </div>
             </div>
 
             <hr class="separateur">
@@ -118,4 +123,8 @@ function afficherProfil(utilisateur) {
             </div>
         </div>
     `;
+
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
 }

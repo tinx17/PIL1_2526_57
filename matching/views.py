@@ -332,6 +332,7 @@ def api_offres_view(request):
         offres_list.append({
             'id': o.pk,
             'auteur': o.auteur.get_full_name(),
+            'auteur_id': o.auteur.pk,
             'type': o.type,
             'matiere': ", ".join([m.nom for m in o.matieres.all()]),
             'description': o.description,

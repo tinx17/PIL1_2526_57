@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modifier mon profil - IFRI_MentorLink</title>
+    <link rel="stylesheet" href="../CSS/styles.css" />
+    <link
+      rel="shortcut icon"
+      href="../assets/img/icon.png"
+      type="image/x-icon"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <nav class="site-nav">
+      <div class="container nav-inner">
+        <a href="../index.html" class="brand">
+          <img
+            src="../assets/img/icon.png"
+            alt="IFRI_MentorLink logo"
+            class="nav-logo"
+          />
+          IFRI_MentorLink
+        </a>
+        <button
+          class="nav-toggle"
+          aria-label="Ouvrir le menu"
+          aria-expanded="false"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="nav-actions">
+          <div class="nav-links">
+            <a href="../index.html" class="nav-link">Accueil</a>
+            <a href="correspondances.html" class="nav-link">Correspondances</a>
+            <a href="offres.html" class="nav-link">Offres & Demandes</a>
+          </div>
+          <div class="nav-auth" id="auth-buttons">
+            <a href="connexion.html" class="btn btn-secondary btn-sm">Connexion</a>
+            <a href="inscription.html" class="btn btn-primary btn-sm">Inscription</a>
+          </div>
+          <div class="nav-user d-none" id="auth-user">
+            <span class="nav-user-name"></span>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-deconnexion">
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- CONTENU PRINCIPAL -->
+    <main class="container" style="padding-bottom: 60px;">
+      <div class="page-header">
+        <h1>Modifier mon profil</h1>
+        <p>Mettez à jour vos informations personnelles, académiques et disponibilités</p>
+      </div>
+
+      <div class="carte-profil">
+        <form id="form-edition-profil" novalidate>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div class="form-group">
+              <label for="prenom">Prénom</label>
+              <div class="input-wrapper">
+                <i data-lucide="user" class="input-icon"></i>
+                <input type="text" id="prenom" placeholder="Votre prénom" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="nom">Nom</label>
+              <div class="input-wrapper">
+                <i data-lucide="user" class="input-icon"></i>
+                <input type="text" id="nom" placeholder="Votre nom" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label for="telephone">Numéro de téléphone</label>
+            <div class="input-wrapper">
+              <i data-lucide="phone" class="input-icon"></i>
+              <input type="text" id="telephone" placeholder="+229XXXXXXXX" required />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div class="form-group">
+              <label for="filiere">Filière</label>
+              <div class="input-wrapper">
+                <i data-lucide="graduation-cap" class="input-icon"></i>
+                <select id="filiere" required>
+                  <option value="">Choisir une filière…</option>
+                  <option value="GL">Génie Logiciel (GL)</option>
+                  <option value="IA">Intelligence Artificielle (IA)</option>
+                  <option value="IM">Internet et Multimédia (IM)</option>
+                  <option value="SI">Sécurité Informatique (SI)</option>
+                  <option value="SEIoT">Systèmes Embarqués et IoT (SEIoT)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="niveau">Niveau d'études</label>
+              <div class="input-wrapper">
+                <i data-lucide="bar-chart-2" class="input-icon"></i>
+                <select id="niveau" required>
+                  <option value="">Choisir un niveau…</option>
+                  <option value="L1">Licence 1</option>
+                  <option value="L2">Licence 2</option>
+                  <option value="L3">Licence 3</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label for="bio">Biographie</label>
+            <textarea id="bio" placeholder="Parlez-nous de vous, de votre parcours..." style="width:100%; min-height:100px; padding:12px; border: 1px solid var(--blue-light); border-radius:6px; font-family:inherit; font-size:14px;"></textarea>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label for="competences">Matières maîtrisées (Points forts) <span style="font-weight:normal; color:var(--text-muted); font-size:12px;">(séparées par des virgules)</span></label>
+            <input type="text" id="competences" placeholder="Ex : Algorithmique, SQL, Python" style="width:100%; padding:12px; border: 1px solid var(--blue-light); border-radius:6px; font-family:inherit; font-size:14px;" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label for="lacunes">Matières à améliorer (Points faibles) <span style="font-weight:normal; color:var(--text-muted); font-size:12px;">(séparées par des virgules)</span></label>
+            <input type="text" id="lacunes" placeholder="Ex : Réseaux, Java" style="width:100%; padding:12px; border: 1px solid var(--blue-light); border-radius:6px; font-family:inherit; font-size:14px;" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 24px;">
+            <label for="disponibilites">Disponibilités <span style="font-weight:normal; color:var(--text-muted); font-size:12px;">(ex: Lundi, Mercredi 14h-17h)</span></label>
+            <div class="input-wrapper">
+              <i data-lucide="calendar" class="input-icon"></i>
+              <input type="text" id="disponibilites" placeholder="Ex : Lundi, Mercredi 14h-17h" />
+            </div>
+          </div>
+
+          <p class="form-error" id="erreur-edition" style="color: #dc2626; font-size:13px; margin-bottom:15px; min-height:20px;"></p>
+
+          <div style="display:flex; gap:12px; justify-content: flex-end;">
+            <a href="profil.html" class="btn btn-secondary">Annuler</a>
+            <button type="submit" class="btn btn-primary">Sauvegarder</button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-brand">
+          <img src="../assets/img/icon.png" alt="Logo" class="nav-logo" />
+          <span>IFRI_MentorLink</span>
+        </div>
+        <div class="footer-links">
+          <a href="../index.html">Accueil</a>
+          <a href="correspondances.html">Correspondances</a>
+          <a href="offres.html">Offres & Demandes</a>
+        </div>
+        <p class="footer-copy">© 2025 IFRI_MentorLink · IFRI/UAC</p>
+      </div>
+    </footer>
+
+    <script src="../JS/script.js"></script>
+    <script src="../JS/editer_profil.js"></script>
+    <script>
+      requireAuth();
+    </script>
+  </body>
+</html>
