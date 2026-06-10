@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil de {{ profil.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container" id="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar" id="user-avatar-{{ profil.id }}">
+            {% if profil.photo_profil %}
+                <img src="{{ profil.photo_profil.url }}" alt="{{ profil.get_full_name }}">
+            {% else %}
+                {{ profil.prenom|first }}{{ profil.nom|first }}
+            {% endif %}
+        </div>
+        <div style="flex: 1;">
+            <h1 class="profile-name">{{ profil.get_full_name }}</h1>
+            <div class="profile-meta">
+                <span class="badge-tag badge-filiere">{{ profil.get_filiere_display }}</span>
+                <span class="badge-tag badge-niveau">{{ profil.get_niveau_display }}</span>
+            </div>
+            {% if profil.bio %}
+                <p class="profile-bio">{{ profil.bio }}</p>
+            {% else %}
+                <p class="profile-bio" style="font-style: italic; opacity: 0.8;">Aucune biographie fournie.</p>
+            {% endif %}
+        </div>
+        <div>
+            {% if est_propre_profil %}
+                <a href="{% url 'accounts:edit_profil' %}" class="btn btn-primary" id="btn-edit-profile">
+                    ✏️ Modifier le profil
+                </a>
+            {% else %}
+                <a href="{% url 'matching:contact' user_id=profil.id %}" class="btn btn-primary" id="btn-contact-{{ profil.id }}">
+                    💬 Contacter
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-top: 1.5rem;" class="profile-details">
+        <div class="card">
+            <h2 class="profile-section-title">Compétences &amp; Lacunes</h2>
+            <div class="profile-section">
+                <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: #059669;">
+                    📚 Compétences (Peut aider en) :
+                </h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    {% for comp in competences %}
+                        <span class="badge-tag badge-competence">{{ comp.nom }}</span>
+                    {% empty %}
+                        <span style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic;">Aucune compétence déclarée.</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="profile-section" style="margin-top: 1.5rem;">
+                <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; color: #DC2626;">
+                    🎯 Lacunes (A besoin d'aide en) :
+                </h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    {% for lac in lacunes %}
+                        <span class="badge-tag badge-lacune">{{ lac.nom }}</span>
+                    {% empty %}
+                        <span style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic;">Aucune lacune déclarée.</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="profile-section-title">Informations de contact</h2>
+            <div class="form-group">
+                <span class="form-label">Email</span>
+                <p style="font-weight: 500;">{{ profil.email }}</p>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <span class="form-label">Téléphone</span>
+                <p style="font-weight: 500;">{{ profil.telephone }}</p>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <span class="form-label">Date d'inscription</span>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">{{ profil.date_inscription|date:"d F Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disponibilités -->
+    <div class="card" style="margin-top: 1.5rem;">
+        <h2 class="profile-section-title">Disponibilités</h2>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;" id="availability-table">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border);">
+                        <th style="padding: 10px; font-weight: 600; color: var(--primary);">Jour</th>
+                        <th style="padding: 10px; font-weight: 600; color: var(--primary);">Créneaux horaires</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for jour, creneaux in disponibilites.items %}
+                        {% if creneaux %}
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 10px; font-weight: 600; text-transform: capitalize; width: 150px;">{{ jour }}</td>
+                            <td style="padding: 10px;">
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    {% for creneau in creneaux %}
+                                        <span class="badge-tag badge-matiere">{{ creneau }}</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="2" style="padding: 10px; text-align: center; color: var(--text-secondary); font-style: italic;">
+                                Aucune disponibilité renseignée.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

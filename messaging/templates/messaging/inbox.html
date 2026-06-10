@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Messagerie{% endblock %}
+
+{% block content %}
+<div class="container" id="inbox-container">
+    <div class="page-header">
+        <h1 class="page-title">Boîte de réception</h1>
+        <p class="page-subtitle">Échangez avec vos mentors et vos tutorés en temps réel.</p>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div class="conversation-list" id="conversation-list">
+            {% for item in conversations %}
+                <a href="{% url 'messaging:conversation' conversation_id=item.conversation.id %}" 
+                   class="conversation-item {% if item.non_lus > 0 %}unread{% endif %}"
+                   id="conversation-item-{{ item.conversation.id }}">
+                    
+                    <div class="conv-avatar">
+                        {% if item.autre_participant.photo_profil %}
+                            <img src="{{ item.autre_participant.photo_profil.url }}" alt="{{ item.autre_participant.get_full_name }}">
+                        {% else %}
+                            {{ item.autre_participant.prenom|first }}{{ item.autre_participant.nom|first }}
+                        {% endif %}
+                    </div>
+
+                    <div class="conv-info">
+                        <div class="conv-name">{{ item.autre_participant.get_full_name }}</div>
+                        <div class="conv-preview">
+                            {% if item.dernier_message %}
+                                {% if item.dernier_message.auteur == user %}
+                                    <span style="color: var(--text-light);">Vous : </span>
+                                {% endif %}
+                                {{ item.dernier_message.contenu }}
+                            {% else %}
+                                <span style="font-style: italic; color: var(--text-light);">Aucun message. Commencez la discussion !</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="conv-meta">
+                        <div class="conv-time">
+                            {% if item.dernier_message %}
+                                {{ item.dernier_message.date_envoi|date:"d/m H:i" }}
+                            {% else %}
+                                {{ item.conversation.date_creation|date:"d/m" }}
+                            {% endif %}
+                        </div>
+                        {% if item.non_lus > 0 %}
+                            <div class="conv-unread-badge">{{ item.non_lus }}</div>
+                        {% endif %}
+                    </div>
+                </a>
+            {% empty %}
+                <div style="text-align: center; padding: 4rem; color: var(--text-secondary);">
+                    <p style="font-size: 1.1rem; margin-bottom: 8px;">Aucune conversation en cours.</p>
+                    <p style="font-size: 0.85rem; color: var(--text-light);">
+                        Rendez-vous sur le <a href="{% url 'matching:dashboard' %}" style="font-weight: 600;">Dashboard</a> pour contacter une suggestion !
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

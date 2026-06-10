@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Discussion avec {{ autre_participant.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container" id="chat-window-container">
+    <div class="chat-container card" id="chat-wrapper" data-conversation-id="{{ conversation.id }}" data-user-id="{{ user_id }}">
+        <!-- En-tête de la discussion -->
+        <div class="chat-header">
+            <div class="suggestion-avatar" style="width: 40px; height: 40px; font-size: 0.9rem;">
+                {% if autre_participant.photo_profil %}
+                    <img src="{{ autre_participant.photo_profil.url }}" alt="{{ autre_participant.get_full_name }}">
+                {% else %}
+                    {{ autre_participant.prenom|first }}{{ autre_participant.nom|first }}
+                {% endif %}
+            </div>
+            <div>
+                <h2 style="font-size: 1rem; font-weight: 700; margin: 0;">
+                    <a href="{% url 'accounts:profil' user_id=autre_participant.id %}" style="color: var(--text);">
+                        {{ autre_participant.get_full_name }}
+                    </a>
+                </h2>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">
+                    {{ autre_participant.get_filiere_display }} • {{ autre_participant.get_niveau_display }}
+                </p>
+            </div>
+            <a href="{% url 'messaging:inbox' %}" class="btn btn-outline btn-sm" style="margin-left: auto;">
+                ← Retour
+            </a>
+        </div>
+
+        <!-- Zone des messages -->
+        <div class="chat-messages" id="chat-messages-box">
+            {% for msg in messages_list %}
+                <div class="chat-bubble {% if msg.auteur.id == user_id %}sent{% else %}received{% endif %}" id="msg-{{ msg.id }}">
+                    <div class="bubble-content">{{ msg.contenu }}</div>
+                    <div class="bubble-meta">
+                        {{ msg.date_envoi|date:"d/m H:i" }}
+                    </div>
+                </div>
+            {% empty %}
+                <div id="no-messages-prompt" style="text-align: center; color: var(--text-secondary); padding: 2rem; font-style: italic;">
+                    Aucun message dans cette discussion. Envoyez le premier message !
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Zone d'envoi -->
+        <div class="chat-input-area">
+            {% csrf_token %}
+            <input type="text" id="chat-input-field" placeholder="Écrivez votre message ici..." autofocus autocomplete="off">
+            <button class="btn btn-primary" id="chat-send-btn" style="border-radius: var(--radius-full); padding: 10px 24px;">
+                Envoyer 🚀
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/chat.js' %}"></script>
+{% endblock %}

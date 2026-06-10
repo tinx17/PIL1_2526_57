@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IFRI MentorLink — Plateforme de mentorat académique et professionnel de l'IFRI, Université d'Abomey-Calavi">
+    <title>{% block title %}MentorLink{% endblock %} — IFRI MentorLink</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <!-- Navbar -->
+    <nav class="navbar" id="main-navbar">
+        <a href="{% url 'matching:dashboard' %}" class="navbar-brand">
+            <span class="logo-icon">ML</span>
+            MentorLink
+        </a>
+
+        <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+
+        <div class="navbar-links" id="navbar-links">
+            <a href="{% url 'matching:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                📊 Dashboard
+            </a>
+            <a href="{% url 'matching:search' %}" class="{% if request.resolver_match.url_name == 'search' or request.resolver_match.url_name == 'results' %}active{% endif %}">
+                🔍 Rechercher
+            </a>
+            <a href="{% url 'messaging:inbox' %}" class="{% if 'messaging' in request.resolver_match.namespace %}active{% endif %}" id="nav-messaging">
+                💬 Messages
+                {% if unread_messages_count > 0 %}
+                <span class="badge" id="unread-badge">{{ unread_messages_count }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'accounts:profil' user_id=user.pk %}" class="{% if request.resolver_match.url_name == 'profil' %}active{% endif %}">
+                👤 Profil
+            </a>
+        </div>
+
+        <div class="navbar-user">
+            <div class="avatar">
+                {% if user.photo_profil %}
+                <img src="{{ user.photo_profil.url }}" alt="{{ user.prenom }}">
+                {% else %}
+                {{ user.prenom|first }}{{ user.nom|first }}
+                {% endif %}
+            </div>
+            <span class="user-name">{{ user.prenom }}</span>
+            <a href="{% url 'accounts:logout' %}" class="btn-logout">Déconnexion</a>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Messages Django -->
+    {% if messages %}
+    <div class="main-content" style="padding-bottom: 0; min-height: auto; padding-top: {% if user.is_authenticated %}74px{% else %}10px{% endif %};">
+        <div class="container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" id="alert-{{ forloop.counter }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Contenu principal -->
+    <div class="{% if not no_layout %}main-content{% endif %}">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% if user.is_authenticated %}
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025-2026 — IFRI MentorLink | Groupe 57 — PIL1_2526_57 | IFRI, Université d'Abomey-Calavi</p>
+    </footer>
+    {% endif %}
+
+    <!-- Scripts -->
+    <script>
+        // Menu hamburger mobile
+        const hamburger = document.getElementById('hamburger-btn');
+        const navLinks = document.getElementById('navbar-links');
+        if (hamburger) {
+            hamburger.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+        }
+
+        // Auto-dismiss alerts après 5 secondes
+        document.querySelectorAll('.alert').forEach((alert, i) => {
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-10px)';
+                setTimeout(() => alert.remove(), 300);
+            }, 5000 + i * 500);
+        });
+    </script>
+    {% if user.is_authenticated %}
+    <script src="{% static 'js/notifications.js' %}"></script>
+    {% endif %}
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

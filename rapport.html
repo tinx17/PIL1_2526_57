@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapport de Projet — IFRI MentorLink (Groupe 57)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #1A2B4A;
+            --primary-light: #2A3D5E;
+            --primary-dark: #0F1B33;
+            --accent: #00C9A7;
+            --accent-hover: #00A88A;
+            --bg: #F7F9FC;
+            --card-bg: #FFFFFF;
+            --text: #1A2B4A;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        header h2 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: var(--accent);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            font-weight: 700;
+            border-radius: 999px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        section {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+        }
+
+        section h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            margin-top: 1.2rem;
+            margin-bottom: 0.6rem;
+            color: var(--primary-light);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--bg);
+        }
+
+        .schema-ascii {
+            font-family: monospace;
+            background-color: #2d3748;
+            color: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre;
+            font-size: 0.85rem;
+            margin: 1rem 0;
+        }
+
+        .guide-step {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 700;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .step-body {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Rapport d'Intégration — IFRI MentorLink</h1>
+            <h2>Projet Intégrateur de Licence (PIL1 — 2025-2026)</h2>
+            <span class="badge">GROUPE 57</span>
+        </header>
+
+        <!-- Membres de l'équipe -->
+        <section id="equipe">
+            <h2>Membres de l'Équipe</h2>
+            <p>Le projet a été développé en collaboration par les membres du Groupe 57 suivants :</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom & Prénom</th>
+                        <th>Rôle Principal</th>
+                        <th>Responsabilités</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Membre 1 (Chef de projet)</strong></td>
+                        <td>Gestion de projet & Architecte Backend</td>
+                        <td>Modèles Django, authentification personnalisée, configuration ASGI et routage de base.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Membre 2</strong></td>
+                        <td>Développeur Base de Données & Backend</td>
+                        <td>Algorithme de matching, modélisation PostgreSQL, implémentation des consommateurs WebSocket.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Membre 3</strong></td>
+                        <td>Designer UX/UI & Développeur Front</td>
+                        <td>Création de la feuille de style CSS globale, responsive design, animations et mise en page.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Membre 4</strong></td>
+                        <td>Développeur Front & JavaScript</td>
+                        <td>Création de la grille de disponibilités interactive, interfaçage client WebSocket et intégration générale.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Membre 5</strong></td>
+                        <td>Ingénieur QA & Rédacteur technique</td>
+                        <td>Rédaction de la documentation, élaboration des scénarios de test et rapport final.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Fonctionnement Interne -->
+        <section id="organisation">
+            <h2>Organisation & Fonctionnement Interne</h2>
+            <p>Afin de mener à bien le développement de la plateforme <strong>IFRI_MentorLink</strong>, nous avons adopté une méthodologie Agile simplifiée centrée sur la communication continue et la collaboration active.</p>
+            
+            <h3>Outils Collaboratifs</h3>
+            <ul>
+                <li><strong>Git & GitHub :</strong> Dépôt centralisé avec politique de Pull Requests pour valider les modifications de code et éviter les conflits sur la branche principale.</li>
+                <li><strong>Trello :</strong> Suivi des tâches organisé en colonnes (À faire, En cours, À tester, Terminé) pour visualiser la progression globale en temps réel.</li>
+                <li><strong>WhatsApp :</strong> Espace privilégié de discussion rapide pour débloquer les anomalies techniques quotidiennes.</li>
+            </ul>
+
+            <h3>Découpage des Tâches</h3>
+            <p>La répartition a suivi une logique de composants interconnectés, où les développeurs backend fournissaient les APIs et les architectures de données tandis que les développeurs frontend concevaient l'interface interactive correspondante.</p>
+        </section>
+
+        <!-- Description de la Conception -->
+        <section id="conception">
+            <h2>Description de la Conception</h2>
+            
+            <h3>Modèle Conceptuel de Données (MCD - ASCII)</h3>
+            <p>Voici l'agencement logique des tables stockées dans PostgreSQL :</p>
+            <div class="schema-ascii">
++-------------------------+            +-------------------------+
+|          users          |            |        matieres         |
++-------------------------+            +-------------------------+
+| id (PK)                 |            | id (PK)                 |
+| email (Unique)          |            | nom (Unique)            |
+| telephone (Unique)      |            +-------------------------+
+| nom, prenom             |                         ^
+| filiere, niveau         |                         |
+| disponibilites (JSONB)  |            +------------+------------+
++-----------+-------------+            |                         |
+            |                          |                         |
+            | 1:N                      | 1:N                     | 1:N
+            v                          |                         |
++-----------+-------------+            |                         |
+|     offres_mentorat     |------------+                         |
++-------------------------+                                      |
+| id (PK)                 |                                      |
+| auteur_id (FK -> users) |                                      |
+| type, format, statut    |                                      |
++-------------------------+                                      |
+                                                                 |
++-------------------------+            +-------------------------+
+|        matchings        |------------+    matching_matieres    |
++-------------------------+            +-------------------------+
+| id (PK)                 |            | id (PK)                 |
+| mentor_id (FK)          |            | matching_id (FK)        |
+| mentore_id (FK)         |            | matiere_id (FK)         |
+| score_compatibilite     |            +-------------------------+
++-------------------------+
+
++-------------------------+            +-------------------------+
+|      conversations      |            |        messages         |
++-------------------------+            +-------------------------+
+| id (PK)                 | 1:N        | id (PK)                 |
+| date_creation           |----------->| conversation_id (FK)    |
++-------------------------+            | auteur_id (FK)          |
+                                       | contenu, date_envoi, lu |
+                                       +-------------------------+</div>
+
+            <h3>Architecture Logicielle (MVC Django)</h3>
+            <p>L'application respecte rigoureusement le patron MVT (Modèle-Vue-Template) de Django :</p>
+            <ul>
+                <li><strong>Les Modèles :</strong> Représentent les structures de données SQL (utilisateurs, matières, offres, conversations, messages) avec gestion des types, validations et contraintes associées.</li>
+                <li><strong>Les Vues :</strong> Portent la logique métier en traitant les requêtes HTTP, interrogeant la base de données et calculant la compatibilité à l'aide de l'algorithme de matching.</li>
+                <li><strong>Les Templates :</strong> Fichiers HTML dynamisés par le moteur de rendu Django, stylisés à l'aide de CSS moderne pour fournir une expérience interactive haut de gamme.</li>
+            </ul>
+        </section>
+
+        <!-- Déploiement -->
+        <section id="deploiement">
+            <h2>Instructions de Déploiement</h2>
+            <ol>
+                <li><strong>Initialisation :</strong> Créez et activez un environnement virtuel Python 3.10+ : <code>python -m venv venv && source venv/bin/activate</code>.</li>
+                <li><strong>Installation :</strong> Installez les paquets requis : <code>pip install -r requirements.txt</code>.</li>
+                <li><strong>Configuration :</strong> Copiez le fichier <code>.env.example</code> en <code>.env</code> et ajustez les variables (identifiants PostgreSQL et Redis).</li>
+                <li><strong>Base de données :</strong> Créez la base de données dans PostgreSQL et appliquez les fichiers de structure initiaux : <code>python manage.py migrate</code>.</li>
+                <li><strong>Lancement :</strong> Exécutez le serveur de messages Redis (<code>redis-server</code>) puis démarrez le serveur ASGI de développement : <code>python manage.py runserver</code> ou <code>daphne mentorlink.asgi:application</code>.</li>
+            </ol>
+        </section>
+
+        <!-- Manuel d'Utilisation -->
+        <section id="manuel">
+            <h2>Manuel d'Utilisation de l'Application</h2>
+            
+            <div class="guide-step">
+                <div class="step-number">1</div>
+                <div class="step-body">
+                    <div class="step-title">Création de Compte & Profil</div>
+                    <p>Accédez à la page d'inscription pour créer un compte avec vos informations d'étudiant (nom, prénom, filière et niveau). Indiquez directement vos matières maîtrisées (compétences) et celles où vous souhaitez progresser (lacunes).</p>
+                </div>
+            </div>
+
+            <div class="guide-step">
+                <div class="step-number">2</div>
+                <div class="step-body">
+                    <div class="step-title">Grille de Disponibilités Interactive</div>
+                    <p>Depuis l'édition de profil, utilisez la grille hebdomadaire pour cliquer sur vos plages de cours libres. Ces données seront stockées au format JSONB pour permettre des calculs de concordance immédiats.</p>
+                </div>
+            </div>
+
+            <div class="guide-step">
+                <div class="step-number">3</div>
+                <div class="step-body">
+                    <div class="step-title">Tableau de Bord & Suggestions de Matching</div>
+                    <p>Votre tableau de bord affiche vos statistiques personnelles ainsi que les suggestions de mentors ou tutorés calculées en temps réel par notre algorithme (pondéré sur vos intérêts croisés et disponibilités communes).</p>
+                </div>
+            </div>
+
+            <div class="guide-step">
+                <div class="step-number">4</div>
+                <div class="step-body">
+                    <div class="step-title">Messagerie Instantanée Temps Réel</div>
+                    <p>Cliquez sur "Contacter" pour ouvrir une discussion instantanée. Les messages s'affichent instantanément à l'aide de Django Channels sans nécessiter de rafraîchissement manuel de la page. Les notifications de messages non lus apparaissent en haut dans la barre globale.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2025-2026 IFRI MentorLink - PIL1 Groupe 57. Tous droits réservés.</p>
+    </footer>
+</body>
+</html>

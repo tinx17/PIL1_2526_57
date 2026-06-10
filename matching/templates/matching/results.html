@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Résultats de recherche{% endblock %}
+
+{% block content %}
+<div class="container" id="results-container">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 class="page-title">Résultats de la recherche</h1>
+            <p class="page-subtitle">{{ total_resultats }} annonce{{ total_resultats|pluralize }} trouvée{{ total_resultats|pluralize }} correspondante{{ total_resultats|pluralize }} à vos critères.</p>
+        </div>
+        <a href="{% url 'matching:search' %}" class="btn btn-outline">
+            ← Nouvelle recherche
+        </a>
+    </div>
+
+    <!-- Filtres rapides en haut -->
+    <div class="card" style="margin-bottom: 2rem; padding: 1.25rem;">
+        <form method="get" action="{% url 'matching:results' %}" style="display: grid; grid-template-columns: 2fr repeat(4, 1fr) auto; gap: 10px; align-items: end;" class="quick-filter-form">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="id_recherche">Rechercher</label>
+                {{ form.q }}
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="id_type">Type</label>
+                {{ form.type }}
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="id_matiere">Matière</label>
+                {{ form.matiere }}
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="id_format_recherche">Format</label>
+                {{ form.format }}
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="id_jour">Jour</label>
+                {{ form.jour }}
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 10px 16px;" id="btn-quick-search">
+                Filtrer
+            </button>
+        </form>
+    </div>
+
+    <!-- Résultats sous forme de cartes -->
+    <div class="results-grid" id="results-list">
+        {% for offre in offres %}
+            <div class="card result-card" id="offre-{{ offre.id }}">
+                <div class="result-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                    <span class="badge-tag {% if offre.type == 'offre' %}badge-offre{% else %}badge-demande{% endif %}">
+                        {{ offre.get_type_display }}
+                    </span>
+                    <span class="badge-tag badge-filiere" style="font-size: 0.75rem;">
+                        {{ offre.get_format_display }}
+                    </span>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+                    <div class="suggestion-avatar" style="width: 44px; height: 44px; font-size: 0.95rem;">
+                        {% if offre.auteur.photo_profil %}
+                            <img src="{{ offre.auteur.photo_profil.url }}" alt="{{ offre.auteur.get_full_name }}">
+                        {% else %}
+                            {{ offre.auteur.prenom|first }}{{ offre.auteur.nom|first }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 style="font-size: 0.95rem; font-weight: 700; margin: 0;">
+                            <a href="{% url 'accounts:profil' user_id=offre.auteur.id %}">{{ offre.auteur.get_full_name }}</a>
+                        </h3>
+                        <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">
+                            {{ offre.auteur.get_filiere_display }} • {{ offre.auteur.get_niveau_display }}
+                        </p>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px; color: var(--primary);">Matières concernées :</span>
+                    <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                        {% for mat in offre.matieres.all %}
+                            <span class="badge-tag badge-matiere" style="font-size: 0.72rem;">{{ mat.nom }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if offre.description %}
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 1rem;">
+                        {{ offre.description }}
+                    </p>
+                {% endif %}
+
+                {% if offre.disponibilites %}
+                <div style="margin-bottom: 1rem;">
+                    <span style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px; color: var(--primary);">Disponibilités proposées :</span>
+                    <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                        {% for jour, creneaux in offre.disponibilites.items %}
+                            <span class="badge-tag badge-filiere" style="font-size: 0.7rem; text-transform: capitalize;">{{ jour|slice:":3" }} ({{ creneaux|join:", " }})</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div style="display: flex; gap: 8px; margin-top: 1rem; border-top: 1px solid var(--border-light); padding-top: 12px;">
+                    <a href="{% url 'accounts:profil' user_id=offre.auteur.id %}" class="btn btn-outline btn-sm" style="flex: 1; text-align: center;">
+                        Voir profil
+                    </a>
+                    <a href="{% url 'matching:contact' user_id=offre.auteur.id %}" class="btn btn-primary btn-sm" style="flex: 1; text-align: center;" id="btn-contact-offre-{{ offre.id }}">
+                        💬 Contacter
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem; border-style: dashed; border-color: var(--border);">
+                <p style="color: var(--text-secondary); font-style: italic;">
+                    Aucune annonce ne correspond à vos critères de recherche.
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
