@@ -32,10 +32,22 @@
           <span></span>
           <span></span>
         </button>
-        <div class="nav-links">
-          <a href="../index.html" class="nav-link">Accueil</a>
-          <a href="correspondances.html" class="nav-link">Correspondances</a>
-          <a href="offres.html" class="nav-link active">Offres & Demandes</a>
+        <div class="nav-actions">
+          <div class="nav-links">
+            <a href="../index.html" class="nav-link">Accueil</a>
+            <a href="correspondances.html" class="nav-link">Correspondances</a>
+            <a href="offres.html" class="nav-link active">Offres & Demandes</a>
+          </div>
+          <div class="nav-auth" id="auth-buttons">
+            <a href="connexion.html" class="btn btn-secondary btn-sm">Connexion</a>
+            <a href="inscription.html" class="btn btn-primary btn-sm">Inscription</a>
+          </div>
+          <div class="nav-user d-none" id="auth-user">
+            <span class="nav-user-name"></span>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-deconnexion">
+              Déconnexion
+            </button>
+          </div>
         </div>
       </div>
     </nav>

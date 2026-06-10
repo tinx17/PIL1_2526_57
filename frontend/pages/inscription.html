@@ -7,303 +7,10 @@
     <link rel="stylesheet" href="../CSS/styles.css" />
     <link rel="shortcut icon" href="../assets/img/icon.png" type="image/x-icon" />
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-      .auth-page {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 48px 16px;
-        background: linear-gradient(135deg, var(--blue-light) 0%, var(--blue-xlight) 100%);
-      }
-
-      .auth-card {
-        background: var(--white);
-        border: 1px solid var(--blue-light);
-        border-radius: 16px;
-        padding: 48px 40px;
-        width: 100%;
-        max-width: 480px;
-        box-shadow: 0 8px 32px rgba(11, 43, 69, 0.1);
-      }
-
-      .auth-header {
-        text-align: center;
-        margin-bottom: 32px;
-      }
-
-      .auth-header .auth-icon {
-        width: 64px;
-        height: 64px;
-        background: var(--blue-xlight);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 20px;
-      }
-
-      .auth-header .auth-icon [data-lucide] {
-        width: 32px;
-        height: 32px;
-        stroke: var(--blue-medium);
-      }
-
-      .auth-header h1 {
-        font-size: 26px;
-        margin-bottom: 8px;
-      }
-
-      .auth-header p {
-        margin: 0;
-        font-size: 14px;
-      }
-
-      /* Indicateur d'étapes */
-      .etapes-indicateur {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0;
-        margin-bottom: 36px;
-      }
-
-      .etape-point {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        position: relative;
-        z-index: 1;
-      }
-
-      .etape-cercle {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        border: 2px solid var(--blue-light);
-        background: var(--white);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--text-muted);
-        transition: all 0.3s;
-      }
-
-      .etape-cercle [data-lucide] {
-        width: 16px;
-        height: 16px;
-        stroke: var(--white);
-        display: none;
-      }
-
-      .etape-label {
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--text-muted);
-        white-space: nowrap;
-        transition: color 0.3s;
-      }
-
-      .etape-point.active .etape-cercle {
-        border-color: var(--blue-medium);
-        background: var(--blue-medium);
-        color: var(--white);
-      }
-
-      .etape-point.active .etape-label {
-        color: var(--blue-medium);
-      }
-
-      .etape-point.complete .etape-cercle {
-        border-color: var(--blue-dark);
-        background: var(--blue-dark);
-        color: transparent;
-      }
-
-      .etape-point.complete .etape-cercle span {
-        display: none;
-      }
-
-      .etape-point.complete .etape-cercle [data-lucide] {
-        display: block;
-      }
-
-      .etape-point.complete .etape-label {
-        color: var(--blue-dark);
-      }
-
-      .etape-trait {
-        height: 2px;
-        width: 48px;
-        background: var(--blue-light);
-        margin-bottom: 22px;
-        transition: background 0.3s;
-      }
-
-      .etape-trait.complete {
-        background: var(--blue-dark);
-      }
-
-      /* Étapes du formulaire */
-      .form-step {
-        display: none;
-      }
-
-      .form-step.active-step {
-        display: block;
-      }
-
-      .auth-form .form-group {
-        margin-bottom: 18px;
-      }
-
-      .auth-form label {
-        display: block;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--blue-dark);
-        margin-bottom: 8px;
-      }
-
-      .input-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-      }
-
-      .input-wrapper [data-lucide].input-icon {
-        position: absolute;
-        left: 14px;
-        width: 16px;
-        height: 16px;
-        stroke: var(--text-muted);
-        pointer-events: none;
-        flex-shrink: 0;
-      }
-
-      .input-wrapper input,
-      .input-wrapper select {
-        padding-left: 42px;
-        margin-bottom: 0;
-      }
-
-      .input-wrapper .toggle-mdp {
-        position: absolute;
-        right: 14px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        display: flex;
-        align-items: center;
-      }
-
-      .input-wrapper .toggle-mdp [data-lucide] {
-        width: 16px;
-        height: 16px;
-        stroke: var(--text-muted);
-        transition: stroke 0.2s;
-      }
-
-      .input-wrapper .toggle-mdp:hover [data-lucide] {
-        stroke: var(--blue-medium);
-      }
-
-      .auth-form select {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1px solid var(--blue-light);
-        border-radius: 6px;
-        font-family: inherit;
-        font-size: 14px;
-        background: var(--white);
-        color: var(--text-dark);
-        transition: border-color 0.3s, box-shadow 0.3s;
-        margin-bottom: 0;
-        cursor: pointer;
-        appearance: none;
-      }
-
-      .auth-form select:focus {
-        outline: none;
-        border-color: var(--blue-medium);
-        box-shadow: 0 0 0 3px rgba(59, 145, 188, 0.1);
-      }
-
-      .auth-form textarea {
-        resize: vertical;
-        min-height: 90px;
-        margin-bottom: 0;
-      }
-
-      /* Boutons navigation étapes */
-      .step-actions {
-        display: flex;
-        gap: 12px;
-        margin-top: 28px;
-      }
-
-      .step-actions .btn {
-        flex: 1;
-        padding: 13px;
-        font-size: 14px;
-        border-radius: 6px;
-      }
-
-      .step-actions .btn-retour {
-        background: transparent;
-        color: var(--text-muted);
-        border: 1px solid var(--gray-200);
-      }
-
-      .step-actions .btn-retour:hover {
-        background: var(--blue-xlight);
-        color: var(--blue-dark);
-        border-color: var(--blue-light);
-      }
-
-      .form-error {
-        min-height: 20px;
-        margin-bottom: 12px;
-        color: #dc2626;
-        font-size: 13px;
-        text-align: center;
-      }
-
-      .auth-separator {
-        text-align: center;
-        margin-top: 28px;
-        font-size: 14px;
-        color: var(--text-muted);
-      }
-
-      .auth-separator a {
-        color: var(--blue-medium);
-        text-decoration: none;
-        font-weight: 600;
-      }
-
-      .auth-separator a:hover {
-        text-decoration: underline;
-      }
-
-      @media (max-width: 480px) {
-        .auth-card {
-          padding: 36px 20px;
-        }
-
-        .etape-trait {
-          width: 28px;
-        }
-      }
-    </style>
   </head>
   <body>
     <div class="auth-page">
-      <div class="auth-card">
+      <div class="auth-card auth-card--wide">
         <div class="auth-header">
           <div class="auth-icon">
             <i data-lucide="user-round-plus"></i>
@@ -312,7 +19,6 @@
           <p>Rejoignez la communauté IFRI_MentorLink</p>
         </div>
 
-        <!-- Indicateur d'étapes -->
         <div class="etapes-indicateur" id="etapes-indicateur">
           <div class="etape-point active" id="point-1">
             <div class="etape-cercle">
@@ -340,8 +46,6 @@
         </div>
 
         <form class="auth-form" id="form-inscription" novalidate>
-
-          <!-- Étape 1 : Identité -->
           <div class="form-step active-step" id="step-1">
             <div class="form-group">
               <label for="nom">Nom</label>
@@ -361,7 +65,13 @@
               <label for="email">Adresse e-mail</label>
               <div class="input-wrapper">
                 <i data-lucide="mail" class="input-icon"></i>
-                <input type="email" id="email" placeholder="votre@email.com" autocomplete="email" required />
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="votre@email.com"
+                  autocomplete="email"
+                  required
+                />
               </div>
             </div>
             <div class="form-group">
@@ -375,8 +85,19 @@
               <label for="mot-de-passe">Mot de passe</label>
               <div class="input-wrapper">
                 <i data-lucide="lock" class="input-icon"></i>
-                <input type="password" id="mot-de-passe" placeholder="Minimum 6 caractères" autocomplete="new-password" required />
-                <button type="button" class="toggle-mdp" id="toggle-mdp" aria-label="Afficher le mot de passe">
+                <input
+                  type="password"
+                  id="mot-de-passe"
+                  placeholder="Minimum 6 caractères"
+                  autocomplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  class="toggle-mdp"
+                  id="toggle-mdp"
+                  aria-label="Afficher le mot de passe"
+                >
                   <i data-lucide="eye"></i>
                 </button>
               </div>
@@ -390,7 +111,6 @@
             </div>
           </div>
 
-          <!-- Étape 2 : Parcours -->
           <div class="form-step" id="step-2">
             <div class="form-group">
               <label for="filiere">Filière</label>
@@ -422,7 +142,11 @@
               <label for="disponibilites">Disponibilités</label>
               <div class="input-wrapper">
                 <i data-lucide="calendar" class="input-icon"></i>
-                <input type="text" id="disponibilites" placeholder="Ex : Lundi, Mercredi 14h-17h" />
+                <input
+                  type="text"
+                  id="disponibilites"
+                  placeholder="Ex : Lundi, Mercredi 14h-17h"
+                />
               </div>
             </div>
             <p class="form-error" id="erreur-2"></p>
@@ -438,14 +162,23 @@
             </div>
           </div>
 
-          <!-- Étape 3 : Compétences -->
           <div class="form-step" id="step-3">
             <div class="form-group">
-              <label for="points-forts">Points forts <span style="font-weight:400;color:var(--text-muted)">(matières maîtrisées)</span></label>
+              <label for="points-forts"
+                >Points forts
+                <span style="font-weight: 400; color: var(--text-muted)"
+                  >(matières maîtrisées)</span
+                ></label
+              >
               <textarea id="points-forts" placeholder="Ex : Algorithmique, SQL, Python…"></textarea>
             </div>
             <div class="form-group">
-              <label for="points-faibles">Points faibles <span style="font-weight:400;color:var(--text-muted)">(besoin d'aide)</span></label>
+              <label for="points-faibles"
+                >Points faibles
+                <span style="font-weight: 400; color: var(--text-muted)"
+                  >(besoin d'aide)</span
+                ></label
+              >
               <textarea id="points-faibles" placeholder="Ex : Réseaux, Mathématiques…"></textarea>
             </div>
             <p class="form-error" id="erreur-3"></p>
@@ -460,7 +193,6 @@
               </button>
             </div>
           </div>
-
         </form>
 
         <p class="auth-separator">
@@ -470,121 +202,6 @@
       </div>
     </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        lucide.createIcons();
-
-        let etapeActuelle = 1;
-        const totalEtapes = 3;
-
-        function allerEtape(n) {
-          // Masquer toutes les étapes
-          for (let i = 1; i <= totalEtapes; i++) {
-            document.getElementById("step-" + i).classList.remove("active-step");
-          }
-          // Afficher l'étape cible
-          document.getElementById("step-" + n).classList.add("active-step");
-
-          // Mettre à jour les points
-          for (let i = 1; i <= totalEtapes; i++) {
-            const point = document.getElementById("point-" + i);
-            point.classList.remove("active", "complete");
-            if (i < n) point.classList.add("complete");
-            if (i === n) point.classList.add("active");
-          }
-
-          // Mettre à jour les traits
-          for (let i = 1; i < totalEtapes; i++) {
-            const trait = document.getElementById("trait-" + i);
-            if (i < n) {
-              trait.classList.add("complete");
-            } else {
-              trait.classList.remove("complete");
-            }
-          }
-
-          lucide.createIcons();
-          etapeActuelle = n;
-        }
-
-        function validerEtape1() {
-          const nom = document.getElementById("nom").value.trim();
-          const prenom = document.getElementById("prenom").value.trim();
-          const email = document.getElementById("email").value.trim();
-          const tel = document.getElementById("telephone").value.trim();
-          const mdp = document.getElementById("mot-de-passe").value;
-          const erreur = document.getElementById("erreur-1");
-
-          if (!nom || !prenom || !email || !tel || !mdp) {
-            erreur.textContent = "Veuillez remplir tous les champs.";
-            return false;
-          }
-          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            erreur.textContent = "Adresse e-mail invalide.";
-            return false;
-          }
-          if (mdp.length < 6) {
-            erreur.textContent = "Le mot de passe doit contenir au moins 6 caractères.";
-            return false;
-          }
-          erreur.textContent = "";
-          return true;
-        }
-
-        function validerEtape2() {
-          const filiere = document.getElementById("filiere").value;
-          const niveau = document.getElementById("niveau").value;
-          const erreur = document.getElementById("erreur-2");
-
-          if (!filiere || !niveau) {
-            erreur.textContent = "Veuillez sélectionner une filière et un niveau.";
-            return false;
-          }
-          erreur.textContent = "";
-          return true;
-        }
-
-        // Toggle mot de passe
-        const toggleBtn = document.getElementById("toggle-mdp");
-        const champMdp = document.getElementById("mot-de-passe");
-        if (toggleBtn && champMdp) {
-          toggleBtn.addEventListener("click", function () {
-            const visible = champMdp.type === "text";
-            champMdp.type = visible ? "password" : "text";
-            toggleBtn.innerHTML = visible
-              ? '<i data-lucide="eye"></i>'
-              : '<i data-lucide="eye-off"></i>';
-            lucide.createIcons();
-          });
-        }
-
-        // Navigation étapes
-        document.getElementById("btn-suivant-1").addEventListener("click", function () {
-          if (validerEtape1()) allerEtape(2);
-        });
-
-        document.getElementById("btn-retour-2").addEventListener("click", function () {
-          allerEtape(1);
-        });
-
-        document.getElementById("btn-suivant-2").addEventListener("click", function () {
-          if (validerEtape2()) allerEtape(3);
-        });
-
-        document.getElementById("btn-retour-3").addEventListener("click", function () {
-          allerEtape(2);
-        });
-
-        // Soumission finale
-        document.getElementById("form-inscription").addEventListener("submit", function (e) {
-          e.preventDefault();
-          const erreur = document.getElementById("erreur-3");
-          erreur.textContent = "";
-          // TODO : appel API Django /api/auth/register/
-          erreur.style.color = "#166534";
-          erreur.textContent = "Inscription réussie ! Redirection…";
-        });
-      });
-    </script>
+    <script src="../JS/script.js"></script>
   </body>
 </html>

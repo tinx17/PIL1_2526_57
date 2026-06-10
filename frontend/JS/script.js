@@ -1,3 +1,118 @@
+const SESSION_KEY = "ifri_mentorlink_session";
+
+function getSession() {
+  try {
+    const data = localStorage.getItem(SESSION_KEY);
+    return data ? JSON.parse(data) : null;
+  } catch {
+    return null;
+  }
+}
+
+function setSession(user) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ ...user, connecte: true }));
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+function isConnecte() {
+  const session = getSession();
+  return Boolean(session && session.connecte);
+}
+
+function getAuthRedirectPath(page) {
+  const inPages = window.location.pathname.includes("/pages/");
+  if (page === "connexion") {
+    return inPages ? "connexion.html" : "pages/connexion.html";
+  }
+  if (page === "accueil") {
+    return inPages ? "../index.html" : "index.html";
+  }
+  return inPages ? "../index.html" : "index.html";
+}
+
+function requireAuth() {
+  if (isConnecte()) {
+    return true;
+  }
+  window.location.href = getAuthRedirectPath("connexion");
+  return false;
+}
+
+function redirectIfConnecte() {
+  if (isConnecte()) {
+    window.location.href = getAuthRedirectPath("accueil");
+  }
+}
+
+function initNavbarAuth() {
+  const authButtons = document.getElementById("auth-buttons");
+  const authUser = document.getElementById("auth-user");
+  const userName = document.querySelector(".nav-user-name");
+  const logoutBtn = document.getElementById("btn-deconnexion");
+
+  if (!authButtons && !authUser) {
+    return;
+  }
+
+  const session = getSession();
+
+  if (session && session.connecte) {
+    authButtons?.classList.add("d-none");
+    authUser?.classList.remove("d-none");
+    if (userName) {
+      userName.textContent = session.prenom
+        ? `${session.prenom} ${session.nom || ""}`.trim()
+        : session.email || "Utilisateur";
+    }
+  } else {
+    authButtons?.classList.remove("d-none");
+    authUser?.classList.add("d-none");
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function () {
+      clearSession();
+      window.location.href = getAuthRedirectPath("accueil");
+    });
+  }
+}
+
+function connecterUtilisateur(email, motDePasse) {
+  const comptes = JSON.parse(localStorage.getItem("ifri_mentorlink_comptes") || "[]");
+  const compte = comptes.find(
+    (c) => c.email === email && c.motDePasse === motDePasse,
+  );
+
+  if (compte) {
+    setSession(compte);
+    return { ok: true };
+  }
+
+  if (email && motDePasse.length >= 6) {
+    setSession({ email, nom: "Utilisateur", prenom: "IFRI" });
+    return { ok: true, demo: true };
+  }
+
+  return { ok: false, message: "Identifiants incorrects." };
+}
+
+function inscrireUtilisateur(donnees) {
+  const comptes = JSON.parse(localStorage.getItem("ifri_mentorlink_comptes") || "[]");
+  const existe = comptes.some((c) => c.email === donnees.email);
+
+  if (existe) {
+    return { ok: false, message: "Cette adresse e-mail est déjà utilisée." };
+  }
+
+  comptes.push(donnees);
+  localStorage.setItem("ifri_mentorlink_comptes", JSON.stringify(comptes));
+  setSession(donnees);
+  return { ok: true };
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const navToggle = document.querySelector(".nav-toggle");
   const navLinks = document.querySelector(".nav-links");
@@ -6,12 +121,8 @@ document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".nav-link").forEach((link) => {
     const href = link.getAttribute("href").split("/").pop();
     let isActive = href === pathName;
-    if (!isActive) {
-      if (pathName === "") {
-        if (href === "index.html") {
-          isActive = true;
-        }
-      }
+    if (!isActive && pathName === "" && href === "index.html") {
+      isActive = true;
     }
     if (isActive) {
       link.classList.add("active");
@@ -20,17 +131,202 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (navToggle && navLinks) {
     navToggle.addEventListener("click", function () {
-      const isOpen = navLinks.classList.toggle("open");
+      const navActions = navLinks.closest(".nav-actions");
+      const target = navActions || navLinks;
+      const isOpen = target.classList.toggle("open");
       navToggle.setAttribute("aria-expanded", String(isOpen));
     });
   }
 
+  initNavbarAuth();
+  initConnexionPage();
+  initInscriptionPage();
   initOffresPage();
 
   if (window.lucide && typeof window.lucide.createIcons === "function") {
     window.lucide.createIcons();
   }
 });
+
+function initConnexionPage() {
+  const form = document.getElementById("form-connexion");
+  if (!form) {
+    return;
+  }
+
+  redirectIfConnecte();
+
+  const toggleBtn = document.getElementById("toggle-mdp");
+  const champMdp = document.getElementById("mot-de-passe");
+  if (toggleBtn && champMdp) {
+    toggleBtn.addEventListener("click", function () {
+      const visible = champMdp.type === "text";
+      champMdp.type = visible ? "password" : "text";
+      toggleBtn.setAttribute(
+        "aria-label",
+        visible ? "Afficher le mot de passe" : "Masquer le mot de passe",
+      );
+      toggleBtn.innerHTML = visible
+        ? '<i data-lucide="eye"></i>'
+        : '<i data-lucide="eye-off"></i>';
+      window.lucide?.createIcons();
+    });
+  }
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const mdp = document.getElementById("mot-de-passe").value;
+    const erreur = document.getElementById("erreur-connexion");
+
+    if (!email || !mdp) {
+      erreur.textContent = "Veuillez remplir tous les champs.";
+      return;
+    }
+
+    const resultat = connecterUtilisateur(email, mdp);
+    if (!resultat.ok) {
+      erreur.textContent = resultat.message;
+      return;
+    }
+
+    erreur.textContent = "";
+    window.location.href = getAuthRedirectPath("accueil");
+  });
+}
+
+function initInscriptionPage() {
+  const form = document.getElementById("form-inscription");
+  if (!form) {
+    return;
+  }
+
+  redirectIfConnecte();
+
+  let etapeActuelle = 1;
+  const totalEtapes = 3;
+
+  function allerEtape(n) {
+    for (let i = 1; i <= totalEtapes; i++) {
+      document.getElementById("step-" + i).classList.remove("active-step");
+    }
+    document.getElementById("step-" + n).classList.add("active-step");
+
+    for (let i = 1; i <= totalEtapes; i++) {
+      const point = document.getElementById("point-" + i);
+      point.classList.remove("active", "complete");
+      if (i < n) point.classList.add("complete");
+      if (i === n) point.classList.add("active");
+    }
+
+    for (let i = 1; i < totalEtapes; i++) {
+      const trait = document.getElementById("trait-" + i);
+      trait.classList.toggle("complete", i < n);
+    }
+
+    window.lucide?.createIcons();
+    etapeActuelle = n;
+  }
+
+  function validerEtape1() {
+    const nom = document.getElementById("nom").value.trim();
+    const prenom = document.getElementById("prenom").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const tel = document.getElementById("telephone").value.trim();
+    const mdp = document.getElementById("mot-de-passe").value;
+    const erreur = document.getElementById("erreur-1");
+
+    if (!nom || !prenom || !email || !tel || !mdp) {
+      erreur.textContent = "Veuillez remplir tous les champs.";
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      erreur.textContent = "Adresse e-mail invalide.";
+      return false;
+    }
+    if (mdp.length < 6) {
+      erreur.textContent =
+        "Le mot de passe doit contenir au moins 6 caractères.";
+      return false;
+    }
+    erreur.textContent = "";
+    return true;
+  }
+
+  function validerEtape2() {
+    const filiere = document.getElementById("filiere").value;
+    const niveau = document.getElementById("niveau").value;
+    const erreur = document.getElementById("erreur-2");
+
+    if (!filiere || !niveau) {
+      erreur.textContent = "Veuillez sélectionner une filière et un niveau.";
+      return false;
+    }
+    erreur.textContent = "";
+    return true;
+  }
+
+  const toggleBtn = document.getElementById("toggle-mdp");
+  const champMdp = document.getElementById("mot-de-passe");
+  if (toggleBtn && champMdp) {
+    toggleBtn.addEventListener("click", function () {
+      const visible = champMdp.type === "text";
+      champMdp.type = visible ? "password" : "text";
+      toggleBtn.innerHTML = visible
+        ? '<i data-lucide="eye"></i>'
+        : '<i data-lucide="eye-off"></i>';
+      window.lucide?.createIcons();
+    });
+  }
+
+  document.getElementById("btn-suivant-1").addEventListener("click", function () {
+    if (validerEtape1()) allerEtape(2);
+  });
+
+  document.getElementById("btn-retour-2").addEventListener("click", function () {
+    allerEtape(1);
+  });
+
+  document.getElementById("btn-suivant-2").addEventListener("click", function () {
+    if (validerEtape2()) allerEtape(3);
+  });
+
+  document.getElementById("btn-retour-3").addEventListener("click", function () {
+    allerEtape(2);
+  });
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const erreur = document.getElementById("erreur-3");
+    erreur.style.color = "#dc2626";
+    erreur.textContent = "";
+
+    const donnees = {
+      nom: document.getElementById("nom").value.trim(),
+      prenom: document.getElementById("prenom").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      telephone: document.getElementById("telephone").value.trim(),
+      motDePasse: document.getElementById("mot-de-passe").value,
+      filiere: document.getElementById("filiere").value,
+      niveau: document.getElementById("niveau").value,
+      disponibilites: document.getElementById("disponibilites").value.trim(),
+      pointsForts: document.getElementById("points-forts").value.trim(),
+      pointsFaibles: document.getElementById("points-faibles").value.trim(),
+    };
+
+    const resultat = inscrireUtilisateur(donnees);
+    if (!resultat.ok) {
+      erreur.textContent = resultat.message;
+      return;
+    }
+
+    erreur.style.color = "#166534";
+    erreur.textContent = "Inscription réussie ! Redirection…";
+    setTimeout(function () {
+      window.location.href = getAuthRedirectPath("accueil");
+    }, 1200);
+  });
+}
 
 function initOffresPage() {
   const offerForm = document.querySelector(".offer-form");
@@ -41,6 +337,10 @@ function initOffresPage() {
   const btnReset = document.getElementById("btn-reset-offres");
 
   if (!offresItems || !offerForm) {
+    return;
+  }
+
+  if (!requireAuth()) {
     return;
   }
 
@@ -56,6 +356,7 @@ function initOffresPage() {
       .getElementById("input-disponibilites")
       .value.trim();
     const format = document.getElementById("input-format").value;
+    const session = getSession();
 
     const errorElement = document.querySelector(".form-error");
     if (errorElement) {
@@ -75,13 +376,15 @@ function initOffresPage() {
       offres.length > 0 ? Math.max(...offres.map((o) => o.id)) + 1 : 1;
     const nouvelleOffre = {
       id: nextId,
-      auteur: "Vous",
+      auteur: session
+        ? `${session.prenom || ""} ${session.nom || ""}`.trim() || "Vous"
+        : "Vous",
       type: "offre",
       matiere,
       description,
       disponibilites,
       format,
-      filiere: "IFRI/UAC",
+      filiere: session?.filiere || "IFRI/UAC",
     };
 
     offres.unshift(nouvelleOffre);
@@ -91,25 +394,19 @@ function initOffresPage() {
     if (errorElement) {
       errorElement.textContent = "Offre publiée avec succès.";
       errorElement.classList.add("success");
-      setTimeout(() => {
-        if (errorElement) {
-          errorElement.textContent = "";
-          errorElement.classList.remove("success");
-        }
+      setTimeout(function () {
+        errorElement.textContent = "";
+        errorElement.classList.remove("success");
       }, 3000);
     }
   });
 
   if (btnFilter) {
-    btnFilter.addEventListener("click", function () {
-      filtrerOffres();
-    });
+    btnFilter.addEventListener("click", filtrerOffres);
   }
 
   if (btnReset) {
-    btnReset.addEventListener("click", function () {
-      reinitialiserFiltres();
-    });
+    btnReset.addEventListener("click", reinitialiserFiltres);
   }
 
   function filtrerOffres() {
@@ -147,9 +444,7 @@ function afficherOffres(liste) {
         <i data-lucide="search-x"></i>
         <p>Aucune offre trouvée</p>
       </div>`;
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
+    window.lucide?.createIcons();
     return;
   }
 
@@ -186,7 +481,5 @@ function afficherOffres(liste) {
     )
     .join("");
 
-  if (window.lucide && typeof window.lucide.createIcons === "function") {
-    window.lucide.createIcons();
-  }
+  window.lucide?.createIcons();
 }
