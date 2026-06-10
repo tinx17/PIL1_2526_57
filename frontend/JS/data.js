@@ -24,7 +24,7 @@ const utilisateurs = [
   {
     id: 3,
     nom: "Agboton Clarisse",
-    filiere: "Systèmes et Réseaux",
+    filiere: "Sécurité Informatique",
     niveau: "Licence 2",
     photo: "assets/images/avatar3.png",
     competences: ["Réseaux", "Linux", "Sécurité"],
@@ -35,7 +35,7 @@ const utilisateurs = [
   {
     id: 4,
     nom: "Hounsou Brice",
-    filiere: "Informatique et Multimédia",
+    filiere: "Internet et Multimédia",
     niveau: "Licence 1",
     photo: "assets/images/avatar4.png",
     competences: ["Développement web", "CSS", "JavaScript"],
@@ -85,7 +85,7 @@ const offres = [
     description: "Sessions pratiques sur les réseaux et la sécurité.",
     disponibilites: "Vendredi 8h-12h",
     format: "Les deux",
-    filiere: "Systèmes et Réseaux",
+    filiere: "Sécurité Informatique",
   },
   {
     id: 4,
@@ -95,7 +95,7 @@ const offres = [
     description: "Ateliers JavaScript orientés projets web.",
     disponibilites: "Samedi 9h-13h",
     format: "En ligne",
-    filiere: "Informatique et Multimédia",
+    filiere: "Internet et Multimédia",
   },
   {
     id: 5,
