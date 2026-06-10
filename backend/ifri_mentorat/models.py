@@ -28,7 +28,7 @@ class Filiere(models.TextChoices):
 class Niveau(models.TextChoices):
     L1 = 'L1', 'Licence 1'
     L2 = 'L2', 'Licence 2'
-    L3 = 'L3', 'Licence 3'
+    L3 = 'L3', 'Licence 3' 
     M1 = 'M1', 'Master 1'
     M2 = 'M2', 'Master 2'
 
@@ -41,8 +41,8 @@ class UserProfile(models.Model):
     telephone = models.CharField(max_length=15, unique=True)
     email = models.EmailField(max_length=100, unique=True)
     mot_de_passe = models.CharField(max_length=255)
-    filiere = models.CharField(max_length=100, blank=True, null=True)
-    niveau = models.CharField(max_length=50, blank=True, null=True)
+    filiere = models.CharField(max_length=100, choices = Filiere.choices)
+    niveau = models.CharField(max_length=50, blank=True, null=True, choices = Niveau.choices)
     bio_courte = models.TextField(blank=True, null=True)
     centre_interet = models.TextField(blank=True, null=True)
     date_inscription = models.DateTimeField(auto_now_add=True)

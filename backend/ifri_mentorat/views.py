@@ -7,6 +7,7 @@ from .models import (UserProfile, PointFort, Lacune, Offre, Demande,
                      UserCreneau, FormatType, Matching)
 from django.db.models import Q, Max
 from datetime import datetime
+from .matching_bidirectionnel import MatchingBidirectionnel
 
 # =================================================================
 # CONSTANTES GLOBALES
@@ -873,6 +874,328 @@ def api_envoyer_message(request, conversation_id):
                 "message_id": message.id,
                 "created_at": str(message.created_at)
             }, status=201)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+
+    return JsonResponse({
+        "status": "error",
+        "message": "Méthode non autorisée. Utilisez POST."
+    }, status=405)
+
+
+@csrf_exempt
+def api_get_profil(request):
+    if request.method == "GET":
+        try:
+            user_id = request.GET.get('user_id')
+
+            if not user_id:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "user_id est obligatoire."
+                }, status=400)
+
+            try:
+                user = UserProfile.objects.get(id=user_id)
+            except UserProfile.DoesNotExist:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Utilisateur introuvable."
+                }, status=404)
+
+            # Récupérer les points forts
+            points_forts = list(
+                PointFort.objects.filter(user=user).values_list('matiere', flat=True)
+            )
+
+            # Récupérer les lacunes
+            lacunes = list(
+                Lacune.objects.filter(user=user).values_list('matiere', flat=True)
+            )
+
+            # Récupérer les créneaux horaires
+            creneaux = [
+                {
+                    'jour'       : c.jour,
+                    'heure_debut': str(c.heure_debut),
+                    'heure_fin'  : str(c.heure_fin)
+                }
+                for c in UserCreneau.objects.filter(user=user)
+            ]
+
+            # Récupérer les offres
+            offres = [
+                {
+                    'id'              : o.id,
+                    'matiere'         : o.matiere,
+                    'format'          : o.format,
+                    'description'     : o.description_offre,
+                    'date_creation'   : str(o.date_creation_offre),
+                    'creneaux'        : [
+                        {
+                            'jour'       : c.jour,
+                            'heure_debut': str(c.heure_debut),
+                            'heure_fin'  : str(c.heure_fin)
+                        }
+                        for c in CreneauOffre.objects.filter(offre=o)
+                    ]
+                }
+                for o in Offre.objects.filter(user=user)
+            ]
+
+            # Récupérer les demandes
+            demandes = [
+                {
+                    'id'           : d.id,
+                    'matiere'      : d.matiere,
+                    'format'       : d.format,
+                    'description'  : d.description_demande,
+                    'date_creation': str(d.date_creation_demande),
+                    'creneaux'     : [
+                        {
+                            'jour'       : c.jour,
+                            'heure_debut': str(c.heure_debut),
+                            'heure_fin'  : str(c.heure_fin)
+                        }
+                        for c in CreneauDemande.objects.filter(demande=d)
+                    ]
+                }
+                for d in Demande.objects.filter(user=user)
+            ]
+
+            return JsonResponse({
+                "status"         : "success",
+                "id"             : user.id,
+                "nom"            : user.nom,
+                "prenom"         : user.prenom,
+                "email"          : user.email,
+                "telephone"      : user.telephone,
+                "filiere"        : user.filiere,
+                "niveau"         : user.niveau,
+                "bio_courte"     : user.bio_courte     or '',
+                "centres_interet": user.centre_interet or '',
+                "date_inscription": str(user.date_inscription),
+                "points_forts"   : points_forts,
+                "lacunes"        : lacunes,
+                "creneaux"       : creneaux,
+                "offres"         : offres,
+                "demandes"       : demandes,
+            }, status=200)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+
+    return JsonResponse({
+        "status": "error",
+        "message": "Méthode non autorisée. Utilisez GET."
+    }, status=405)
+
+
+@csrf_exempt
+def api_matching_demande(request, demande_id):
+    if request.method == "POST":
+        try:
+            data    = json.loads(request.body)
+            user_id = data.get('user_id')
+
+            if not user_id:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "user_id est obligatoire."
+                }, status=400)
+
+            # Vérification existence utilisateur
+            try:
+                user = UserProfile.objects.get(id=user_id)
+            except UserProfile.DoesNotExist:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Utilisateur introuvable."
+                }, status=404)
+
+            # Vérification existence demande
+            try:
+                demande = Demande.objects.get(id=demande_id)
+            except Demande.DoesNotExist:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Demande introuvable."
+                }, status=404)
+
+            # Vérification que la demande appartient à l'utilisateur
+            if demande.user.id != int(user_id):
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Cette demande ne vous appartient pas."
+                }, status=403)
+
+            # Vérification que la demande a des créneaux
+            if not CreneauDemande.objects.filter(demande=demande).exists():
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Cette demande n'a pas de créneaux horaires définis."
+                }, status=400)
+
+            # Exécution du matching
+            algo    = MatchingBidirectionnel()
+            results = algo.execute_matching_for_demande(demande, min_score=0)
+
+            # Formatage des résultats
+            formatted_results = []
+            for result in results:
+                offre      = result['offre']
+                offre_user = result['offre_user']
+
+                matieres_communes       = algo.get_matieres_communes(offre_user, demande.user)
+                disponibilites_communes = algo.get_disponibilites_communes(offre, demande)
+
+                creneaux_offre = [
+                    {
+                        'jour'       : c.jour,
+                        'heure_debut': str(c.heure_debut),
+                        'heure_fin'  : str(c.heure_fin)
+                    }
+                    for c in CreneauOffre.objects.filter(offre=offre)
+                ]
+
+                formatted_results.append({
+                    'offre_id'              : offre.id,
+                    'score'                 : result['score'],
+                    'mentor'                : {
+                        'id'     : offre_user.id,
+                        'nom'    : offre_user.nom,
+                        'prenom' : offre_user.prenom,
+                        'filiere': offre_user.filiere,
+                        'niveau' : offre_user.niveau,
+                    },
+                    'matieres_communes'      : matieres_communes,
+                    'disponibilites_communes': disponibilites_communes,
+                    'offre'                  : {
+                        'matiere'    : offre.matiere,
+                        'format'     : offre.format,
+                        'description': offre.description_offre,
+                        'creneaux'   : creneaux_offre,
+                    }
+                })
+
+            return JsonResponse({
+                "status"       : "success",
+                "demande_id"   : demande_id,
+                "matiere"      : demande.matiere,
+                "total_results": len(formatted_results),
+                "results"      : formatted_results
+            }, status=200)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=400)
+
+    return JsonResponse({
+        "status": "error",
+        "message": "Méthode non autorisée. Utilisez POST."
+    }, status=405)
+
+
+# =================================================================
+# API MATCHING — OFFRE CHERCHE DEMANDES
+# POST /api/matching/offre/<offre_id>/
+# Body : { "user_id": 1 }
+# =================================================================
+
+@csrf_exempt
+def api_matching_offre(request, offre_id):
+    if request.method == "POST":
+        try:
+            data    = json.loads(request.body)
+            user_id = data.get('user_id')
+
+            if not user_id:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "user_id est obligatoire."
+                }, status=400)
+
+            # Vérification existence utilisateur
+            try:
+                user = UserProfile.objects.get(id=user_id)
+            except UserProfile.DoesNotExist:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Utilisateur introuvable."
+                }, status=404)
+
+            # Vérification existence offre
+            try:
+                offre = Offre.objects.get(id=offre_id)
+            except Offre.DoesNotExist:
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Offre introuvable."
+                }, status=404)
+
+            # Vérification que l'offre appartient à l'utilisateur
+            if offre.user.id != int(user_id):
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Cette offre ne vous appartient pas."
+                }, status=403)
+
+            # Vérification que l'offre a des créneaux
+            if not CreneauOffre.objects.filter(offre=offre).exists():
+                return JsonResponse({
+                    "status": "error",
+                    "message": "Cette offre n'a pas de créneaux horaires définis."
+                }, status=400)
+
+            # Exécution du matching
+            algo    = MatchingBidirectionnel()
+            results = algo.execute_matching_for_offre(offre, min_score=0)
+
+            # Formatage des résultats
+            formatted_results = []
+            for result in results:
+                demande      = result['demande']
+                demande_user = result['demande_user']
+
+                matieres_communes       = algo.get_matieres_communes(offre.user, demande_user)
+                disponibilites_communes = algo.get_disponibilites_communes(offre, demande)
+
+                creneaux_demande = [
+                    {
+                        'jour'       : c.jour,
+                        'heure_debut': str(c.heure_debut),
+                        'heure_fin'  : str(c.heure_fin)
+                    }
+                    for c in CreneauDemande.objects.filter(demande=demande)
+                ]
+
+                formatted_results.append({
+                    'demande_id'             : demande.id,
+                    'score'                  : result['score'],
+                    'mentore'                : {
+                        'id'     : demande_user.id,
+                        'nom'    : demande_user.nom,
+                        'prenom' : demande_user.prenom,
+                        'filiere': demande_user.filiere,
+                        'niveau' : demande_user.niveau,
+                    },
+                    'matieres_communes'      : matieres_communes,
+                    'disponibilites_communes': disponibilites_communes,
+                    'demande'                : {
+                        'matiere'    : demande.matiere,
+                        'format'     : demande.format,
+                        'description': demande.description_demande,
+                        'creneaux'   : creneaux_demande,
+                    }
+                })
+
+            return JsonResponse({
+                "status"       : "success",
+                "offre_id"     : offre_id,
+                "matiere"      : offre.matiere,
+                "total_results": len(formatted_results),
+                "results"      : formatted_results
+            }, status=200)
 
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=400)

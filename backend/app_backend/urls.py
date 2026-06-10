@@ -29,12 +29,18 @@ urlpatterns = [
 
     # Mise à jour du Profil
     path('api/profil/update/',     views.api_update_profil,    name='api_update_profil'),
+    path('api/profil/',     views.api_get_profil,    name='api_get_profil'),
 
     # Création d'Offres
     path('api/offres/creer/',      views.api_creer_offre,      name='api_creer_offre'),
 
     # Créatio de Demandes
     path('api/demandes/creer/',    views.api_creer_demande,    name='api_creer_demande'),
+
+    #Matching
+    # Matching
+    path('api/matching/demande/<int:demande_id>/', views.api_matching_demande, name='api_matching_demande'),
+    path('api/matching/offre/<int:offre_id>/',     views.api_matching_offre,   name='api_matching_offre'),
 
     # Messagerie
     #Création d'une conversation
