@@ -188,11 +188,13 @@ Le développement a été structuré selon une répartition équilibrée des tâ
 
 | Membre de l'Équipe | Rôle Principal |
 |--------------------|----------------|
-| **Royal AHOUMENOU** | Chef de projet & Architecte Backend |
-| **Giovanni GBASSE** | Développeur Backend & SQL |
+| **Royal AHOUMENOU** | Chef de projet & Backend et Base de données |
+| **Giovanni GBASSE** | Développeur Backend & Base de données |
 | **Eckson AHOUANSOU** | Designer Graphique, Dev Front-End & Intégrateur |
 | **Exaucée BOGNON** | Développeuse Front-End |
-| **Malik FAGNON** | Développeur Front-End & Ingénieur QA |
+| **Malik FAGNON** | Développeur Front-End |
+| **Jason GBAGUIDI** | Base de données & Backend |
+| **Gracia KOTCHONI** | Réalisatrice du rapport de projet |
 
 ---
 
